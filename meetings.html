@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회의록 관리 - AI 회의록 서비스</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="static/css/meetings.css">
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Sidebar Trigger Zone -->
+    <div class="sidebar-trigger"></div>
+
+    <!-- Sidebar (fetch로 불러올 자리) -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <div class="action-header">
+          <div class="page-header">
+            <h2>회의록 관리</h2>
+            <p>저장된 모든 회의록을 관리하세요</p>
+          </div>
+          <div class="search-controls">
+            <button class="search-toggle-btn" id="searchToggleBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              검색
+            </button>
+          </div>
+        </div>
+
+        <!-- 검색창 (토글) -->
+        <div class="search-panel hidden" id="searchPanel">
+          <div class="search-input-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="키워드로 검색...">
+            <button class="search-clear-btn" id="searchClearBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 필터 및 정렬 -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">정렬 기준</label>
+            <select class="filter-select" id="sortSelect">
+              <option value="date-desc">최신순</option>
+              <option value="date-asc">오래된순</option>
+              <option value="title-asc">제목순</option>
+              <option value="duration-desc">시간 긴 순</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">우선순위</label>
+            <select class="filter-select" id="priorityFilter">
+              <option value="all">전체</option>
+              <option value="high">높음</option>
+              <option value="medium">보통</option>
+              <option value="low">낮음</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 회의록 테이블 -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-header-cell">날짜 / 시간</div>
+            <div class="table-header-cell">제목</div>
+            <div class="table-header-cell">참석자</div>
+            <div class="table-header-cell">시간</div>
+            <div class="table-header-cell">우선순위</div>
+            <div class="table-header-cell">키워드</div>
+          </div>
+
+          <div class="table-row" onclick="goToMeetingDetail(1)" data-date="2025/09/29 14:00" data-duration="45" data-priority="high">
+            <div class="table-cell">
+              <span class="cell-primary">09/29</span>
+              <span class="cell-secondary">14:00</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-primary">마케팅 전략 회의</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">3명</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">45분</span>
+            </div>
+            <div class="table-cell">
+              <span class="priority-badge high">높음</span>
+            </div>
+            <div class="table-cell">
+              <div class="keyword-list">
+                <span class="keyword-tag">#마케팅</span>
+                <span class="keyword-tag">#전략</span>
+                <span class="keyword-tag">#Q4</span>
+                <span class="keyword-more">+2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-row" onclick="goToMeetingDetail(2)" data-date="2025/09/27 10:00" data-duration="80" data-priority="medium">
+            <div class="table-cell">
+              <span class="cell-primary">09/27</span>
+              <span class="cell-secondary">10:00</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-primary">개발팀 주간회의</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">4명</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">1시간 20분</span>
+            </div>
+            <div class="table-cell">
+              <span class="priority-badge medium">보통</span>
+            </div>
+            <div class="table-cell">
+              <div class="keyword-list">
+                <span class="keyword-tag">#개발</span>
+                <span class="keyword-tag">#스프린트</span>
+                <span class="keyword-tag">#버그수정</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-row" onclick="goToMeetingDetail(3)" data-date="2025/09/25 15:30" data-duration="120" data-priority="low">
+            <div class="table-cell">
+              <span class="cell-primary">09/25</span>
+              <span class="cell-secondary">15:30</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-primary">프로젝트 킥오프</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">6명</span>
+            </div>
+            <div class="table-cell">
+              <span class="cell-secondary">2시간</span>
+            </div>
+          <div class="table-cell">
+            <span class="priority-badge low">낮음</span>
+          </div>
+            <div class="table-cell">
+              <div class="keyword-list">
+                <span class="keyword-tag">#킥오프</span>
+                <span class="keyword-tag">#목표</span>
+                <span class="keyword-tag">#일정</span>
+                <span class="keyword-tag">#역할</span>
+                <span class="keyword-more">+3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 챗봇 컨테이너 -->
+      <div id="chatbot-container"></div>
+
+      <!-- 플로팅 버튼 -->
+      <button class="floating-chat-btn" id="floatingChatBtn">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      </button>
+    </main>
+  </div>
+
+  <script src="static/js/app.js"></script>
+  <script src="static/js/meetings.js"></script>
+</body>
+
+</html>

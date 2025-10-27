@@ -1,0 +1,253 @@
+/* 검색 컨트롤 */
+.search-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.search-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #374151;
+    font-size: 14px;
+}
+
+.search-toggle-btn:hover {
+    background: #f9fafb;
+    border-color: #8E44AD;
+    color: #8E44AD;
+}
+
+/* 검색 패널 */
+.search-panel {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.search-panel.hidden {
+    display: none;
+}
+
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.search-input-wrapper:focus-within {
+    border-color: #8E44AD;
+    background: white;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    color: #111827;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-clear-btn {
+    padding: 4px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+    display: none;
+}
+
+.search-clear-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.search-input-wrapper.has-value .search-clear-btn {
+    display: block;
+}
+
+/* 필터 바 */
+.filter-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.filter-select:hover {
+    border-color: #8E44AD;
+}
+
+.filter-select:focus {
+    border-color: #8E44AD;
+    box-shadow: 0 0 0 3px #e8d5f0;
+}
+
+/* 우선순위 선택 드롭다운 (필터용) */
+.priority-select {
+    padding: 4px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+    background: white;
+    color: #374151;
+}
+
+.priority-select:hover {
+    border-color: #8E44AD;
+}
+
+.priority-select:focus {
+    border-color: #8E44AD;
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+}
+
+/* 키워드 리스트 */
+.keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.keyword-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f3e5f5;
+    color: #8E44AD;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.keyword-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 테이블 헤더/로우 수정 (6컬럼) */
+.table-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 2fr;
+    gap: 16px;
+    padding: 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 2fr;
+    gap: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+
+/* 우선순위 뱃지 (일반 텍스트 스타일) */
+.priority-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 400;
+    color: #374151;
+}
+
+.priority-badge.high,
+.priority-badge.medium,
+.priority-badge.low {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+    }
+
+    .search-controls {
+        width: 100%;
+    }
+
+    .search-toggle-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .table-header-cell {
+        display: none;
+    }
+
+    .table-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+}

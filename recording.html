@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회의 중 - AI 회의록 서비스</title>
+  <link rel="stylesheet" href="./static/css/style.css">
+  <link rel="stylesheet" href="./static/css/recording.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Sidebar Trigger Zone -->
+    <div class="sidebar-trigger"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div id="recording" class="content-wrapper">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h2>회의 진행 중</h2>
+            <p>실시간으로 대화가 기록되고 있습니다</p>
+          </div>
+          
+          <!-- 마이크 상태 -->
+          <div class="mic-status-header">
+            <div class="mic-status-badge">
+              <svg class="mic-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+              <span class="mic-status-label">대기 중</span>
+            </div>
+            <div class="audio-wave">
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="recording-layout">
+          <!-- 좌측: 실시간 대화 로그 -->
+          <div class="transcript-main">
+            <div class="transcript-header">
+              <h2>실시간 대화 기록</h2>
+              <div class="transcript-info">
+                <span class="transcript-count" id="transcriptCount">0개 발화</span>
+                <div class="auto-scroll-toggle">
+                  <input type="checkbox" id="autoScroll" checked>
+                  <label for="autoScroll">자동 스크롤</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="transcript-content" id="transcriptContent">
+              <!-- 발화 블록 동적 생성 -->
+              <div class="transcript-item">
+                <div class="transcript-meta">
+                  <span class="speaker-name">홍길동</span>
+                  <span class="transcript-time">00:01:23</span>
+                </div>
+                <div class="transcript-text">
+                  안녕하세요, 오늘 회의를 시작하겠습니다. 이번 프로젝트의 주요 목표와 일정에 대해 논의하려고 합니다.
+                </div>
+              </div>
+
+              <div class="transcript-item">
+                <div class="transcript-meta">
+                  <span class="speaker-name">김영희</span>
+                  <span class="transcript-time">00:01:45</span>
+                </div>
+                <div class="transcript-text">
+                  네, 좋습니다. 먼저 <mark class="keyword-highlight">예산</mark> 부분부터 검토하면 좋을 것 같습니다. <mark class="keyword-highlight">마감일</mark>도 확인해야 할 것 같고요.
+                </div>
+              </div>
+
+              <div class="transcript-item">
+                <div class="transcript-meta">
+                  <span class="speaker-name">홍길동</span>
+                  <span class="transcript-time">00:02:08</span>
+                </div>
+                <div class="transcript-text">
+                  그렇습니다. 예산은 약 5천만원 정도로 책정되어 있고, 마감일은 다음 달 말까지입니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 우측: 회의 정보 & 컨트롤 -->
+          <aside class="recording-sidebar">
+            <!-- 스크롤되는 영역 -->
+            <div class="sidebar-scroll">
+              <!-- 회의 정보 카드 -->
+              <div class="info-card">
+                <div class="info-header">
+                  <h3>회의 정보</h3>
+                </div>
+
+                <div class="info-body">
+                  <div class="info-item">
+                    <label>회의 제목</label>
+                    <p id="meetingTitle">프로젝트 기획 회의</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label>진행 시간</label>
+                    <p class="timer-text" id="timerDisplay">00:00:00</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label>회의 일시</label>
+                    <p id="meetingDate">2025년 10월 10일 14:00</p>
+                  </div>
+
+                  <div class="info-item" id="descriptionSection">
+                    <label>회의 설명</label>
+                    <p id="meetingDescription">-</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 참석자 카드 -->
+              <div class="info-card info-card-collapsible collapsed" id="participantsCard">
+                <div class="info-header">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3>참석자</h3>
+                    <span class="participant-count" id="participantCount">3명</span>
+                  </div>
+                  <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+                <div class="participants-grid collapsible-content" id="participantsList">
+                  <!-- 동적 생성 -->
+                  <div class="participant-chip">
+                    <div class="participant-avatar-mini">홍</div>
+                    <span>홍길동</span>
+                  </div>
+                  <div class="participant-chip">
+                    <div class="participant-avatar-mini">김</div>
+                    <span>김영희</span>
+                  </div>
+                  <div class="participant-chip">
+                    <div class="participant-avatar-mini">이</div>
+                    <span>이철수</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 키워드 카드 -->
+              <div class="info-card info-card-collapsible collapsed" id="keywordsCard">
+                <div class="info-header">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3>하이라이트 키워드</h3>
+                    <span class="keyword-count" id="keywordCount">5개</span>
+                  </div>
+                  <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+                <div class="keywords-display collapsible-content" id="keywordsList">
+                  <!-- 동적 생성 -->
+                  <span class="keyword-chip">예산</span>
+                  <span class="keyword-chip">마감일</span>
+                  <span class="keyword-chip">일정</span>
+                  <span class="keyword-chip">프로젝트</span>
+                  <span class="keyword-chip">목표</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 고정 영역: 컨트롤 버튼 -->
+            <div class="control-panel">
+              <button class="control-btn start-btn" id="startBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polygon points="10 8 16 12 10 16 10 8"/>
+                </svg>
+                녹음 시작
+              </button>
+              <button class="control-btn pause-btn" id="pauseBtn" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="6" y="4" width="4" height="16"/>
+                  <rect x="14" y="4" width="4" height="16"/>
+                </svg>
+                일시정지
+              </button>
+            </div>
+
+            <!-- 고정 영역: 회의 종료 버튼 -->
+            <div class="end-panel">
+              <button class="control-btn end-btn" id="endBtn" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="6" y="6" width="12" height="12"/>
+                </svg>
+                회의 종료
+              </button>
+              <p class="end-warning">녹음을 시작해야 종료할 수 있습니다</p>
+            </div>
+          </aside>
+
+        </div>
+
+        <!-- 하이라이트 알림 -->
+        <div id="highlightToastContainer" class="highlight-toast-container"></div>
+
+        <!-- 챗봇 컨테이너 -->
+        <div id="chatbot-container"></div>
+
+        <!-- 플로팅 버튼 -->
+        <button class="floating-chat-btn" id="floatingChatBtn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+      </div>
+
+    </main>
+  </div>
+    <!-- 커스텀 확인 모달 -->
+  <div id="confirmModal" class="custom-modal hidden">
+    <div class="custom-modal-content">
+      <h3 id="confirmTitle">회의 종료</h3>
+      <p id="confirmMessage">회의를 종료하시겠습니까?<br>종료하면 회의록 페이지로 이동합니다.</p>
+      <div class="custom-modal-buttons">
+        <button id="confirmCancelBtn" class="btn-cancel">취소</button>
+        <button id="confirmOkBtn" class="btn-ok">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="static/js/app.js"></script>
+  <script src="static/js/recording.js"></script>
+  
+  <script>
+
+
+  </script>
+</body>
+
+</html>

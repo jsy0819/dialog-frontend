@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일정 관리 - AI 회의록 서비스</title>
+    
+    <link rel="stylesheet" href="static/css/style.css"> 
+    <link rel="stylesheet" href="static/css/calendar.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="sidebar-trigger"></div>
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div id="calendarPage" class="calendar-wrapper">
+                <div class="calendar-main">
+                    <div class="page-header">
+                        <h2>일정 관리</h2>
+                        <p>등록된 회의 및 개인 일정을 한눈에 확인하세요</p>
+                    </div>
+
+                    <div class="calendar-controls">
+                        <button id="prevMonthBtn" class="control-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h3 id="currentMonthYear" class="current-month-year">October 2025</h3>
+                        <button id="nextMonthBtn" class="control-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="calendar-grid-container">
+                        <div id="calendarGrid" class="calendar-grid-full"></div>
+                        
+                        <div id="dailyEventsList" class="daily-events-card hidden">
+                            <div class="card-header">
+                                <h3 id="dailyEventsTitle" class="card-title">선택된 날짜의 일정</h3>
+                                <button class="close-daily-events-btn" onclick="closeDailyEvents()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="dailyEventsContent" class="daily-events-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="card legend-card">
+                        <div class="legend-list">
+                            <div class="legend-item">
+                                <span class="legend-dot event-type-team"></span>
+                                <span>팀 회의</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot event-type-personal"></span>
+                                <span>개인 일정</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-sidebar-right">
+                    <div class="card meeting-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span id="meetingCardTitleContent">10월 1일의 회의</span>
+                                <span id="meetingCount" class="meeting-count">(총 0개)</span>
+                            </h3>
+                        </div>
+                        <div id="meetingList" class="meeting-list"></div>
+                    </div>
+
+                    <div class="card todo-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span id="todoCardTitleContent">10월 1일의 To-do</span>
+                                <span id="todoCount" class="todo-count">(총 0개)</span>
+                            </h3>
+                        </div>
+                        <div class="todo-input-area">
+                            <input type="text" id="todoInput" class="chat-input" placeholder="새로운 할 일 추가">
+                            <button id="addTodoBtn" class="send-btn" title="추가">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14m-7-7h14"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="todoList" class="todo-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatbot-container"></div>
+
+            <button class="floating-chat-btn" id="floatingChatBtn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 
+                        4V5a2 2 0 0 1 2-2h14a2 2 
+                        0 0 1 2 2z" />
+                </svg>
+            </button>
+        </main>
+    </div>
+
+    <!-- JavaScript 파일 로드 -->
+    <script src="static/js/app.js"></script>
+    <script src="static/js/calendar.js"></script>
+    
+</body>
+</html>

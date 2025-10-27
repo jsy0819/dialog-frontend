@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 - AI 회의록 서비스</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/settings.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar-trigger"></div>
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div class="settings-container">
+                <div class="page-header">
+                    <h2>설정</h2>
+                    <p>개인 정보와 챗봇 가이드를 확인하세요</p>
+                </div>
+
+                <!-- 개인정보 섹션 (접기/펼치기) -->
+                <div class="personal-info-section" id="personalInfoSection">
+                    <div class="personal-info-header" onclick="togglePersonalInfo()">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                        <div class="section-title">
+                            <h3>개인정보</h3>
+                            <p>기본 정보를 관리하세요</p>
+                        </div>
+                        <div class="toggle-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="personal-info-content">
+                        <div class="form-group">
+                            <label class="form-label">이름</label>
+                            <input type="text" class="form-input" id="userName" placeholder="이름을 입력하세요" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <input type="email" class="form-input" id="userEmail" placeholder="example@email.com" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">직무</label>
+                            <select class="form-select" id="jobSelect">
+                                <option value="">직무를 선택하세요</option>
+                                <option value="PROJECT_MANAGER">기획자 (PM)</option>
+                                <option value="FRONTEND_DEVELOPER">프론트엔드 개발자 (FE)</option>
+                                <option value="BACKEND_DEVELOPER">백엔드 개발자 (BE)</option>
+                                <option value="DATABASE_ADMINISTRATOR">데이터베이스 관리자 (DBA)</option>
+                                <option value="SECURITY_DEVELOPER">보안 개발자 (SE)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">직급</label>
+                            <select class="form-select" id="positionSelect">
+                                <option value="">직급을 선택하세요</option>
+                                <option value="STAFF">사원</option>
+                                <option value="ASSISTANT_MANAGER">대리</option>
+                                <option value="MANAGER">과장</option>
+                                <option value="SENIOR_MANAGER">차장</option>
+                                <option value="GENERAL_MANAGER">부장</option>
+                            </select>
+                        </div>
+
+                        <button class="save-button" onclick="savePersonalInfo()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            저장하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 챗봇 가이드 메인 메뉴 -->
+                <div id="guideMainMenu" class="chatbot-guide-menu">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="section-title">
+                            <h3>챗봇 가이드</h3>
+                            <p>서비스 기능별 상세 안내</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-menu-item" onclick="showGuideDetail('core')">
+                        <div class="guide-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 16v-4m0-4h.01"/>
+                            </svg>
+                        </div>
+                        <div class="guide-content">
+                            <h4>핵심 기능</h4>
+                            <p>STT 변환, 회의록 저장, 검색 챗봇</p>
+                        </div>
+                        <div class="guide-arrow">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="guide-menu-item" onclick="showGuideDetail('advanced')">
+                        <div class="guide-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <div class="guide-content">
+                            <h4>추가 기능</h4>
+                            <p>맞춤형 요약, 하이라이트, 캘린더 연동</p>
+                        </div>
+                        <div class="guide-arrow">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="guide-menu-item" onclick="showGuideDetail('tips')">
+                        <div class="guide-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <div class="guide-content">
+                            <h4>사용 팁</h4>
+                            <p>효과적인 활용 방법</p>
+                        </div>
+                        <div class="guide-arrow">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 핵심 기능 상세 -->
+                <div id="coreGuideDetail" class="guide-detail-page">
+                    <button class="back-button" onclick="showGuideMain()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        <span>가이드로 돌아가기</span>
+                    </button>
+
+                    <div class="guide-detail-section">
+                        <h4>1. 회의 음성 → 텍스트 변환 (STT)</h4>
+                        <p>회의 진행 중 발생하는 음성을 실시간으로 텍스트로 변환하여 동시에 화면에 표시합니다. 회의 종료 후 따로 파일을 업로드하지 않아도, 회의와 동시에 자동 회의록이 생성됩니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>실시간 음성 스트리밍 및 텍스트 변환</li>
+                                <li>발화자별 구분으로 "누가 무슨 말을 했는지" 명확히 표시</li>
+                                <li>변환된 텍스트는 자동으로 데이터베이스에 저장</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시:</strong><br>
+                            [홍길동] 이번 분기 예산을 논의하겠습니다.<br>
+                            [김영희] 네, 2억 원 정도 필요합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-detail-section" style="margin-top: 16px;">
+                        <h4>2. 회의록 저장 및 조회</h4>
+                        <p>생성된 회의록을 체계적으로 관리하고, 리스트 및 상세 페이지에서 확인할 수 있습니다. 필요한 회의록은 날짜/키워드로 검색할 수 있으며, PDF 형식으로 내보낼 수 있습니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>회의 종료 시 회의록 자동 저장</li>
+                                <li>리스트: 제목, 일자, 참석자, 요약 표시</li>
+                                <li>상세: 전체 대화, 요약, 액션 아이템 확인</li>
+                                <li>Markdown → PDF 변환 지원</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시:</strong><br>
+                            회의록 제목: 9월 24일 마케팅 전략 회의<br>
+                            참석자: 홍길동, 김영희, 박철수<br>
+                            요약: 캠페인 예산 2억 원 확정, 기획안 작성 필요</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-detail-section" style="margin-top: 16px;">
+                        <h4>3. 회의록 기반 검색 챗봇</h4>
+                        <p>누적된 회의록을 대상으로 사용자가 질문하면, 챗봇이 관련 내용을 찾아줍니다. 단순 키워드 검색을 넘어, 자연어 질의응답을 지원합니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>회의록 데이터를 DB/검색 인덱스로 저장</li>
+                                <li>자연어 질문 입력 시 관련 회의록 검색</li>
+                                <li>챗봇이 답변 요약 생성</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시:</strong><br>
+                            Q: 지난달 예산 관련 논의 뭐였어?<br>
+                            A: 8월 12일 회의에서 마케팅 예산을 1.5억 원으로 조정하기로 합의했습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 추가 기능 상세 -->
+                <div id="advancedGuideDetail" class="guide-detail-page">
+                    <button class="back-button" onclick="showGuideMain()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        <span>가이드로 돌아가기</span>
+                    </button>
+
+                    <div class="guide-detail-section">
+                        <h4>4. 사용자 맞춤 기능</h4>
+                        <p>사용자의 역할·관심사에 따라 회의록 요약을 맞춤 제공하고, 자주 쓰는 용어나 약어를 자동으로 풀어서 보여줍니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>사용자 프로필(부서, 직무) 등록</li>
+                                <li>관련된 내용만 추려 별도 요약 제공</li>
+                                <li>주요 약어·전문 용어 자동 해석</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시 - 맞춤 요약:</strong><br>
+                            [마케팅 담당자용 요약]<br>
+                            - 프로모션 일정: 10월 시작<br>
+                            - 예산: 2억 원 확정</p>
+                        </div>
+
+                        <div class="example-box" style="margin-top: 12px;">
+                            <p><strong>예시 - 용어 해석:</strong><br>
+                            Q: LTV가 뭐예요?<br>
+                            A: LTV는 고객 생애 가치(Life Time Value)의 약어로, 고객이 우리 회사와 관계를 유지하는 동안 발생시키는 총 수익을 의미합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-detail-section" style="margin-top: 16px;">
+                        <h4>5. 하이라이트 (Highlight) 기능</h4>
+                        <p>사용자가 회의 중(또는 이전)에 설정한 특정 단어 및 문장을 추적 및 탐색해 하이라이트 처리합니다. 회의 종료 후에는 하이라이트만 모아보기를 제공합니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>사용자가 선택한 문장 또는 키워드 지정</li>
+                                <li>지정된 텍스트를 실시간 탐지</li>
+                                <li>해당 구간을 태그 처리하여 회의록에 표시</li>
+                                <li>종료 후 "하이라이트 모음집" 생성</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시:</strong><br>
+                            [Highlight] 다음 분기 예산은 2억 원으로 확정</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-detail-section" style="margin-top: 16px;">
+                        <h4>6. 캘린더 연동</h4>
+                        <p>회의록에서 일정이나 업무 관련 문장을 인식하여, 자동으로 캘린더 이벤트나 업무 할당으로 등록합니다.</p>
+                        
+                        <div class="feature-box">
+                            <strong>주요 특징</strong>
+                            <ul>
+                                <li>일정 자동 인식 및 캘린더 이벤트 생성</li>
+                                <li>생성 전 사용자에게 확인 절차 제공</li>
+                                <li>사용자 설정에 따라 수정 가능</li>
+                            </ul>
+                        </div>
+
+                        <div class="example-box">
+                            <p><strong>예시:</strong><br>
+                            캘린더: 10월 2일 오전 10시 – 마케팅 전략 회의<br>
+                            업무: [김영희] 보고서 초안 작성</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 사용 팁 상세 -->
+                <div id="tipsGuideDetail" class="guide-detail-page">
+                    <button class="back-button" onclick="showGuideMain()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        <span>가이드로 돌아가기</span>
+                    </button>
+
+                    <div class="guide-detail-section">
+                        <h4>효과적인 서비스 활용 방법</h4>
+                        
+                        <div class="feature-box">
+                            <strong>📝 회의 전 준비</strong>
+                            <ul>
+                                <li>개인정보 설정에서 직무를 미리 선택해두면 맞춤형 요약을 받을 수 있습니다</li>
+                                <li>중요하게 추적하고 싶은 키워드를 미리 설정해보세요</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-box">
+                            <strong>🎙️ 회의 중 활용</strong>
+                            <ul>
+                                <li>명확한 발화를 위해 한 번에 한 사람씩 말하도록 권장합니다</li>
+                                <li>중요한 결정사항이나 액션 아이템은 강조하여 말하면 더 잘 인식됩니다</li>
+                                <li>실시간으로 표시되는 텍스트를 확인하며 필요시 수정 요청하세요</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-box">
+                            <strong>📊 회의 후 관리</strong>
+                            <ul>
+                                <li>회의록 상세 페이지에서 하이라이트된 내용을 먼저 확인하세요</li>
+                                <li>PDF로 내보내기하여 팀원들과 공유할 수 있습니다</li>
+                                <li>검색 챗봇을 활용하여 이전 회의 내용을 빠르게 찾아보세요</li>
+                                <li>캘린더 연동 기능으로 일정을 자동 등록하세요</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-box">
+                            <strong>💡 챗봇 활용 팁</strong>
+                            <ul>
+                                <li>"지난주 마케팅 회의에서 논의된 예산은?"처럼 구체적으로 질문하세요</li>
+                                <li>"김영희님이 맡은 업무가 뭐였지?"와 같이 담당자 기준으로도 검색 가능합니다</li>
+                                <li>전문 용어가 이해되지 않을 때는 챗봇에게 바로 물어보세요</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챗봇 컨테이너 -->
+            <div id="chatbot-container"></div>
+
+            <!-- 플로팅 버튼 -->
+            <button class="floating-chat-btn" id="floatingChatBtn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </button>
+        </main>
+    </div>
+
+    <script src="static/js/app.js"></script>
+    <script src="static/js/settings.js"></script>
+</body>
+</html>

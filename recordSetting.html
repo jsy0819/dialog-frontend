@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회의 세팅 - AI 회의록 서비스</title>
+
+  <!-- 공통 스타일 -->
+  <link rel="stylesheet" href="./static/css/style.css">
+  <!-- 회의 세팅 전용 스타일 -->
+  <link rel="stylesheet" href="./static/css/recordSetting.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Sidebar Trigger Zone -->
+    <div class="sidebar-trigger"></div>
+
+    <!-- Sidebar (fetch로 불러올 자리) -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div id="record-setting" class="content-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2>회의 세팅</h2>
+          <p>회의를 시작하기 전에 기본 정보를 입력해주세요</p>
+        </div>
+
+
+        <!-- 3단 그리드 레이아웃 -->
+        <div class="setup-grid">
+          <!-- 기본 정보 카드 -->
+          <div class="setup-card basic-info-card">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </div>
+            <h3 class="section-title">기본 정보</h3>
+            <p class="section-description">회의의 기본 정보를 입력해주세요</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="meeting-title">
+                  회의 제목 <span class="required">*</span>
+                </label>
+                <input type="text" id="meeting-title" class="form-input" placeholder="예: 10월 마케팅 전략 회의">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="meeting-scheduledAt">
+                  회의 일시 <span class="required">*</span>
+                </label>
+                <input type="datetime-local" id="meeting-scheduledAt" class="form-input">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="meeting-description">
+                회의 설명
+              </label>
+              <textarea id="meeting-description" class="form-textarea" placeholder="회의의 목적이나 주요 안건을 간단히 작성해주세요"
+                rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- 참석자 -->
+          <div class="setup-card">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3 class="section-title">참석자</h3>
+            <p class="section-description">회의 참석자를 추가해주세요</p>
+
+            <div class="participant-input-wrapper">
+              <input type="text" id="participant-name" class="form-input" placeholder="이름 입력">
+              <button class="add-participant-btn">추가</button>
+            </div>
+
+            <div class="participants-list">
+              <div class="participant-item">
+                <div class="participant-avatar">홍</div>
+                <span class="participant-name">홍길동</span>
+                <button class="remove-participant-btn">✕</button>
+              </div>
+              <div class="participant-item">
+                <div class="participant-avatar">김</div>
+                <span class="participant-name">김영희</span>
+                <button class="remove-participant-btn">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 키워드 -->
+          <div class="setup-card">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+            </div>
+            <h3 class="section-title">하이라이트 키워드</h3>
+            <p class="section-description">강조할 키워드를 설정하세요</p>
+
+            <div class="keyword-input-wrapper">
+              <input type="text" id="keyword-input" class="form-input" placeholder="키워드 입력">
+              <button class="add-keyword-btn">추가</button>
+            </div>
+
+            <div class="keywords-list">
+              <span class="keyword-tag">
+                예산
+                <button class="remove-keyword-btn">✕</button>
+              </span>
+              <span class="keyword-tag">
+                마감일
+                <button class="remove-keyword-btn">✕</button>
+              </span>
+            </div>
+          </div>
+
+          <!-- 마이크 테스트 -->
+          <div class="setup-card">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+            </div>
+            <h3 class="section-title">마이크 테스트</h3>
+            <p class="section-description">녹음 전 마이크를 테스트하세요</p>
+
+            <div class="mic-test-wrapper">
+              <button class="mic-test-btn" id="micTestBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+                테스트 시작
+              </button>
+              <div class="mic-level-wrapper">
+                <span class="mic-level-label">음량</span>
+                <div class="mic-level-indicator">
+                  <div class="mic-level-bar" id="micLevelBar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 버튼 영역 -->
+        <div class="action-buttons">
+          <button class="btn-secondary">취소</button>
+          <button class="btn-primary">회의 시작</button>
+        </div>
+      </div>
+            <!-- 챗봇 컨테이너 -->
+      <div id="chatbot-container"></div>
+
+      <!-- 플로팅 버튼 -->
+      <button class="floating-chat-btn" id="floatingChatBtn">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 
+                 4V5a2 2 0 0 1 2-2h14a2 2 
+                 0 0 1 2 2z" />
+        </svg>
+      </button>
+    </main>
+  </div>
+    <script src="static/js/app.js"></script>
+    <script src="static/js/recordSetting.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,387 @@
+.card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 카드 헤더 */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.card-link {
+    font-size: 14px;
+    color: #8E44AD;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.card-link:hover {
+    color: #7d3c98;
+}
+
+/* ============================================
+   페이지 헤더 스타일
+   ============================================ */
+
+.page-header {
+    margin-bottom: 16px;
+}
+
+.page-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.page-header #current-date-display {
+    font-size: 18px;
+    font-weight: 600;
+    color: #8E44AD;
+    margin: 0;
+}
+
+/* ============================================
+   3개 카드 1열 레이아웃
+   ============================================ */
+
+.three-col-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.three-col-grid > .card {
+    height: 340px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   To-Do 스타일
+   ============================================ */
+
+/* TODO 카드 내부 레이아웃 */
+.three-col-grid > .card:nth-child(3) {
+    display: flex;
+    flex-direction: column;
+}
+
+.three-col-grid > .card:nth-child(3) .card-header {
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+/* TODO 리스트 - 남은 공간 정확히 계산 */
+.three-col-grid .todo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 8px 2px 0;
+    height: 0;
+    flex-grow: 1;
+}
+
+/* TODO 아이템 */
+.three-col-grid .todo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    min-height: 42px;
+}
+
+.three-col-grid .todo-item:hover {
+    background: #f9fafb;
+}
+
+.three-col-grid .todo-item.completed .todo-label {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.three-col-grid .todo-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.three-col-grid .todo-checkbox:checked {
+    background: #8E44AD;
+    border-color: #8E44AD;
+}
+
+.three-col-grid .todo-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.three-col-grid .todo-label {
+    flex: 1;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* ============================================
+   최근 회의 스타일 (홈 전용)
+   ============================================ */
+
+.three-col-grid > .card:first-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.three-col-grid .meeting-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+    padding: 2px 0;
+    /* justify-content: center; */
+}
+
+.three-col-grid .meeting-item {
+    padding: 12px;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.three-col-grid .meeting-item:hover {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.three-col-grid .meeting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.three-col-grid .meeting-title {
+    font-weight: 600;
+    color: #111827;
+    font-size: 14px;
+}
+
+.three-col-grid .meeting-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.three-col-grid .meeting-date {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.three-col-grid .meeting-participants {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* ============================================
+   다가오는 일정/마감일 스타일
+   ============================================ */
+
+.three-col-grid > .card:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+}
+
+.deadline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+    padding: 2px 0;
+    /* justify-content: center; */
+}
+
+.deadline-item {
+    padding: 12px;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.deadline-item:hover {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.deadline-item.urgent {
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.deadline-item.urgent:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.deadline-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.deadline-title {
+    font-weight: 600;
+    color: #111827;
+    font-size: 14px;
+}
+
+.deadline-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.deadline-date {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.deadline-badge {
+    padding: 3px 8px;
+    background: #f3e5f5;
+    color: #8E44AD;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.deadline-badge.urgent {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ============================================
+   레이아웃 간격
+   ============================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 8px;
+    margin-bottom: 30px;
+}
+
+.cta-banner {
+    flex-shrink: 0;
+    margin-bottom: 16px;
+    padding: 24px 32px;
+}
+
+.cta-banner h3 {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.cta-banner p {
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.three-col-grid {
+    flex-shrink: 0;
+}
+
+.page-header {
+    flex-shrink: 0;
+}
+
+/* 빈 상태 메시지 스타일 추가 */
+.three-col-grid .meeting-list p,
+.three-col-grid .deadline-list p {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
+.three-col-grid .meeting-list p:hover,
+.three-col-grid .deadline-list p:hover {
+    background: none;
+    border: none;
+    transform: none;
+    box-shadow: none;
+    cursor: default;
+}
+
+/* 빈 상태 메시지 - hover 효과 제거 */
+.three-col-grid .empty-message {
+    cursor: default;
+    background: transparent !important;
+    border: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ============================================
+   반응형
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .three-col-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .three-col-grid > .card {
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
