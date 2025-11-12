@@ -1,8 +1,9 @@
 /* ===============================
    Chatbot & Sidebar Fetch
 =================================*/
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async() => {
     // 챗봇 로드
+    const loggedInUser = await loadCurrentUser();
     fetch("components/chatbot.html")
         .then(res => res.text())
         .then(html => {
@@ -29,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // ✅ 사이드바 로드 후 사용자 정보 주입
             await loadCurrentUser();
+            
 
             // 현재 페이지 활성화
             const currentPage = window.location.pathname.split("/").pop();
@@ -46,6 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(error => {
             console.error('사이드바 로드 실패:', error);
         });
+    if (loggedInUser) {
+        fillPersonalInfoFields(loggedInUser);
+    }
 });
 // 새 함수 추가: 개인정보 섹션의 Input 필드에 사용자 정보와 로컬 설정을 주입
 function fillPersonalInfoFields(user) {
