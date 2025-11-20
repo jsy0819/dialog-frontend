@@ -135,6 +135,10 @@ signinForm.addEventListener('submit', async function(e) {
     
     const email = document.getElementById('signin-email').value.trim();
     const password = document.getElementById('signin-password').value;
+
+    // 아이디 기억하기 체크 여부 
+    const rememberCheckbox = document.getElementById('remember');
+    const rememberId = rememberCheckbox ? rememberCheckbox.checked : false;
     clearFieldErrors();
 
     if (!email || !password) {
@@ -146,12 +150,12 @@ signinForm.addEventListener('submit', async function(e) {
         const response = await fetch('http://localhost:8080/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, rememberId }),
             credentials: 'include'
         });
         const data = await response.json();
 
-        if (response.ok && data.token) {
+        if (response.ok && data.success) {
             showAlert('로그인 성공!', 'success');
             setTimeout(() => {
                 window.location.href = '/home.html'; 
@@ -531,3 +535,26 @@ if (sendForgotBtn) {
         });
     });
 }
+
+/* ===============================
+    쿠키 유틸리티 및 아이디 기억하기 초기화
+================================= */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+// 페이지 로드 시 저장된 이메일이 있는지 확인
+document.addEventListener('DOMContentLoaded', function() {
+    const savedEmail = getCookie('savedEmail');
+    const emailInput = document.getElementById('signin-email');
+    const rememberCheckbox = document.getElementById('remember');
+
+    if (savedEmail && emailInput) {
+        emailInput.value = decodeURIComponent(savedEmail); // 이메일 입력창 채우기
+        if (rememberCheckbox) {
+            rememberCheckbox.checked = true; // 체크박스 켜기
+        }
+    }
+});
