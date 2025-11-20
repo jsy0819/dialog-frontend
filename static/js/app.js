@@ -575,18 +575,33 @@ async function fetchGoogleAccessToken() {
 
 
 // =====================================
-// ✅ 로그아웃 함수
+// ✅ 로그아웃 함수 (수정됨)
 // =====================================
-function logout() {
+async function logout() {
     if (confirm('로그아웃 하시겠습니까?')) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('user');
-        
-        document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        
-        window.location.href = 'login.html';
+        try {
+            // 1. 서버에 로그아웃 요청 (HttpOnly 쿠키 삭제 목적)
+            await fetch('http://localhost:8080/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' 
+            });
+
+        } catch (error) {
+            console.error("로그아웃 요청 중 에러 발생 (무시하고 진행):", error);
+        } finally {
+            // 클라이언트 측 데이터 삭제 (LocalStorage 등)
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('user');
+            
+            // 로그인 페이지로 이동
+            window.location.href = 'login.html';
+        }
     }
+    
     const dropdown = document.getElementById('profileDropdown');
     if (dropdown) {
         dropdown.classList.remove('active');
