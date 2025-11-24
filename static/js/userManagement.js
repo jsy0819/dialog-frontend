@@ -142,20 +142,27 @@ async function saveUserSettings() {
 }
 
 
+// deleteUser
 async function deleteUser(userId) {
-  if (confirm(`사용자(ID: ${userId})를 정말 삭제하시겠습니까?`)) {
-    try {
-        await apiClient.delete(`/admin/users/${userId}`);
-        
-        alert('사용자가 삭제되었습니다.');       
+    // 1. 커스텀 컨펌 창 띄우기 (await 필수!)
+    const isConfirmed = await showConfirm(`사용자(ID: ${userId})를 정말 삭제하시겠습니까?`);
 
-        loadUsers(); 
-    } catch (error) {
-        console.error('사용자 삭제 실패:', error);
-        alert('삭제 중 오류가 발생했습니다.');
+    if (isConfirmed) {
+        try {
+            await apiClient.delete(`/admin/users/${userId}`);
+            // 2. 성공 알림 (showAlert)
+            showAlert('사용자가 삭제되었습니다.');       
+            loadUsers(); 
+        } catch (error) {
+            console.error('사용자 삭제 실패:', error);
+            // 3. 실패 알림 (showAlert)
+            showAlert('삭제 중 오류가 발생했습니다.', 'error');
+        }
+    } else {
+        console.log('삭제 취소됨');
     }
-  }
 }
+
 
 /**
  * 사용자 상태(활성/비활성)를 변경하는 함수
@@ -168,7 +175,7 @@ async function updateUserStatus(selectElement, userId, newStatusValue) {
     
     const isActive = (newStatusValue === 'true'); 
 
-    // 1. (⭐️중요⭐️) 캐시된 데이터에서 이 사용자의 job, position을 찾습니다.
+    // 1. (중요) 캐시된 데이터에서 이 사용자의 job, position을 찾습니다.
     //    @NotNull 필드를 채워야 하기 때문입니다.
     const user = cachedUsers.find(u => u.id == userId);
     if (!user) {

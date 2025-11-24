@@ -82,13 +82,13 @@ async function savePersonalInfo() {
     const positionSelect = document.getElementById('positionSelect').value;
 
     // 2. 유효성 검사 (간단)
-    if (!jobSelect) {
-        alert('직무를 선택해주세요.');
+    if (!jobSelect || jobSelect === 'NONE') { 
+        showAlert('직무를 선택해주세요.', 'error'); 
         return;
     }
 
-    if (!positionSelect) {
-        alert('직급을 선택해주세요.');
+    if (!positionSelect || positionSelect === 'NONE') {
+        showAlert('직급을 선택해주세요.', 'error'); 
         return;
     }
 
