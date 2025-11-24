@@ -22,11 +22,11 @@ async function addDailyTodo() {
     const todoInput = document.getElementById('todoInput'); 
     
     if (!selectedDate) {
-        alert("먼저 캘린더에서 날짜를 선택해주세요.");
+        showAlert("먼저 캘린더에서 날짜를 선택해주세요.", 'error');
         return;
     }
     if (!todoInput || !todoInput.value.trim()) {
-        alert("할 일을 입력해주세요.");
+        showAlert("할 일을 입력해주세요.", 'error');
         return;
     }
     
@@ -52,17 +52,17 @@ async function addDailyTodo() {
         });
 
         if (response.ok) {
-            showSuccessMessage('할 일이 추가되었습니다');
+            showAlert('할 일이 추가되었습니다'); 
             todoInput.value = ''; 
-            renderCalendar(); // API로 캘린더 전체 새로고침
+            renderCalendar(); 
         } else {
              const errorText = await response.text();
-             console.error(`❌ To-do 생성 실패 (${response.status}):`, errorText);
-             alert(`❌ To-do 생성 실패: ${errorText}`);
+             console.error(` To-do 생성 실패 (${response.status}):`, errorText);
+             showAlert(`To-do 생성 실패: ${errorText}`, 'error');
         }
     } catch (error) {
-        console.error('❌ To-do 생성 중 네트워크 오류:', error);
-        alert('❌ 네트워크 오류 또는 JSON 처리 오류가 발생했습니다.');
+        console.error(' To-do 생성 중 네트워크 오류:', error);
+        showAlert('네트워크 오류 또는 JSON 처리 오류가 발생했습니다.', 'error');
     }
 }
 async function editApiTodo(eventId, currentTitle, eventDate) {
@@ -74,19 +74,20 @@ async function editApiTodo(eventId, currentTitle, eventDate) {
     const modalContent = document.createElement('div');    
     modalContent.className = 'modal-container'; 
 
-    modalContent.innerHTML = `
-        <div class="modal-header">
-            <h3>할 일 수정</h3>
-            <button class="close-btn">×</button> 
-        </div>
-        <div class="modal-body">
-            <input type="text" id="editTodoInput" class="edit-modal-input" value="${currentTitle}">
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3>할 일 수정</h3>
+            <button class="close-btn">×</button> 
         </div>
-           <div class="modal-footer">
+        <div class="modal-body">
+            <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">할 일 내용</label>
+            <input type="text" id="editTodoInput" class="edit-modal-input" value="${currentTitle}" autocomplete="off">
+        </div>
+        <div class="modal-footer">
             <button class="edit-modal-btn cancel">취소</button>
-            <button class="edit-modal-btn confirm">확인</button>
+            <button class="edit-modal-btn confirm">수정 완료</button>
         </div>
-    `;
+    `;
 
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
@@ -151,12 +152,12 @@ async function editApiTodo(eventId, currentTitle, eventDate) {
                        errorText = errorJson.message;
                    }
                } catch (e) {}
-                console.error(`❌ To-do 수정 실패 (${response.status}):`, errorText);
-                alert(`❌ To-do 수정 실패: ${errorText}`);
+                console.error(` To-do 수정 실패 (${response.status}):`, errorText);
+                showAlert(`To-do 수정 실패: ${errorText}`, 'error');
             }
         } catch (error) {
-            console.error('❌ To-do 수정 중 네트워크 오류:', error);
-            alert('❌ 네트워크 오류가 발생했습니다.');
+            console.error(' To-do 수정 중 네트워크 오류:', error);
+            showAlert('네트워크 오류가 발생했습니다.', 'error');
         } finally {
             closeModal(); // 성공/실패 여부와 관계없이 모달 닫기
         }
@@ -187,8 +188,9 @@ async function editApiTodo(eventId, currentTitle, eventDate) {
 }
 // (API) To-do 삭제
 async function deleteApiTodo(eventId, title) {
-    if (confirm(`"${title}" 할 일을 삭제하시겠습니까?`)) {        
+    const isConfirmed = await showConfirm(`"${title}" 할 일을 삭제하시겠습니까?`);
 
+    if (isConfirmed) {        
         const DELETE_URL = `${CALENDAR_BASE_URL}/events/${eventId}`;
 
         try {
@@ -199,16 +201,16 @@ async function deleteApiTodo(eventId, title) {
             });
 
             if (response.ok) {
-                showSuccessMessage('할 일이 삭제되었습니다');
-                renderCalendar(); // API로 캘린더 전체 새로고침
+                showAlert('할 일이 삭제되었습니다'); // 성공 알림
+                renderCalendar(); // 캘린더 새로고침
             } else {
                 const errorText = await response.text();
-                console.error(`❌ To-do 삭제 실패 (${response.status}):`, errorText);
-                alert(`❌ To-do 삭제 실패: ${errorText}`);
+                console.error(`To-do 삭제 실패 (${response.status}):`, errorText);
+                showAlert(`To-do 삭제 실패: ${errorText}`, 'error');
             }
         } catch (error) {
-            console.error('❌ To-do 삭제 중 네트워크 오류:', error);
-            alert('❌ 네트워크 오류가 발생했습니다.');
+            console.error('To-do 삭제 중 네트워크 오류:', error);
+            showAlert('네트워크 오류가 발생했습니다.', 'error');
         }
     }
 }
@@ -247,11 +249,11 @@ function showGoogleLinkButton() {
                     const data = await response.json();
                     window.location.href = data.authUrl; 
                 } else {
-                    alert("연동 시작에 실패했습니다. 다시 로그인해주세요.");
+                    showAlert("연동 시작에 실패했습니다. 다시 로그인해주세요.", 'error');
                 }
             } catch (error) {
                 console.error("Google 연동 시작 오류:", error);
-                alert("연동 중 오류가 발생했습니다.");
+                showAlert("연동 중 오류가 발생했습니다.", 'error');
             }
         });
         linkButton.dataset.listenerAdded = 'true';
@@ -767,11 +769,11 @@ async function toggleImportance(eventId, starBtn) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        console.log(`✅ 중요도 토글 성공: ${eventId}`);
+        console.log(` 중요도 토글 성공: ${eventId}`);
 
     } catch (error) {
-        console.error('❌ 중요도 토글 실패:', error);
-        alert('❌ 중요도 변경에 실패했습니다.');
+        console.error(' 중요도 토글 실패:', error);
+        showAlert('중요도 변경에 실패했습니다.', 'error');
         
         // 실패 시 UI 롤백
         starBtn.classList.toggle('active');
