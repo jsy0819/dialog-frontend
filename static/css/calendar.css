@@ -632,15 +632,6 @@
   cursor: pointer;
 }
 
-/* .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-} */
-
 .modal-header h3 {
   margin: 0;
   font-size: 18px;
@@ -698,4 +689,61 @@
 
 .edit-modal-btn.confirm:hover {
   background-color: #7a3a95; /* 호버 시 약간 어둡게 */
+}
+
+/* =========================================================
+   Google 연동 모달 전용 스타일 (기존 모달 스타일 확장)
+   ========================================================= */
+
+/* 1. 오버레이 Z-index 보정 (다른 요소보다 위에 뜨게 함) */
+#googleLinkModal.modal-overlay {
+    z-index: 99999;
+}
+
+/* 2. 모달 너비 조정 (너무 넓지 않게) */
+#googleLinkModal .modal-container {
+    max-width: 380px;
+}
+
+/* 3. 본문 내용 중앙 정렬 */
+.google-auth-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* 4. 연결 아이콘 스타일 */
+.auth-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: bounce 2s infinite;
+}
+
+/* 5. 안내 텍스트 스타일 */
+.auth-text {
+    margin: 0;
+    color: #4b5563;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+/* 6. 버튼 꽉 채우기 (기존 .edit-modal-btn 확장) */
+.edit-modal-btn.full-width {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/*  아이콘 둥실거리는 효과 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-10px);}
+    60% {transform: translateY(-5px);}
 }
