@@ -181,13 +181,13 @@ async function handleDeleteClick(event) {
         try {
             await apiClient.delete(`/admin/meetings/${meetingId}`); 
 
-            alert('삭제되었습니다.');
+            showAlert('삭제되었습니다.');
             
             loadAndRenderMeetings(); 
 
         } catch (error) {
             console.error('삭제 실패:', error);
-            alert('삭제에 실패했습니다. (예: 404 - 찾을 수 없음)');
+            showAlert('삭제에 실패했습니다. (예: 404 - 찾을 수 없음)', 'error');
 
         } finally {
             if (deleteButton) {

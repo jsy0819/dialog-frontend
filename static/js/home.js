@@ -195,11 +195,11 @@ window.startGoogleLink = async function() {
             const data = await res.json();
             window.location.href = data.authUrl;
         } else {
-            alert("연동 시작 실패. 서버 상태를 확인해주세요.");
+        showAlert("연동 시작에 실패했습니다. 서버 상태를 확인해주세요.", 'error');
         }
     } catch (e) {
         console.error("연동 오류:", e);
-        alert("연동 중 오류가 발생했습니다.");
+        showAlert("연동 중 오류가 발생했습니다.", 'error');
     }
 };
 
@@ -412,7 +412,7 @@ function loadRecentMeetings() {
             date: new Date(meeting.eventDate + 'T' + (meeting.time || '00:00:00')), 
             title: meeting.title,
             type: 'meeting',
-            eventDateStr: meeting.eventDate // ⭐️ 캘린더 이동에 필요한 YYYY-MM-DD
+            eventDateStr: meeting.eventDate
         }));
 
         renderRecentMeetings(processedEvents);
@@ -470,8 +470,6 @@ async function updateTodoStatus(todoId, isCompleted) {
         console.error(e); 
     }
 }
-// 기타 리스너
-//document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchHomeData(); });
 function goToMeetings() { window.location.href = 'meetings.html'; }
 
 function goToCalendarWithDate(dateStr) {

@@ -94,7 +94,7 @@ function editUser(userId) {
     // 1. 캐시된 데이터에서 사용자 찾기
     const user = cachedUsers.find(u => u.id == userId);
     if (!user) {
-        alert('사용자 정보를 찾을 수 없습니다.');
+        showAlert('사용자 정보를 찾을 수 없습니다.', 'error');
         return;
     }
 
@@ -131,13 +131,13 @@ async function saveUserSettings() {
         // 2. 백엔드 컨트롤러에 만든 API 경로로 PUT 요청
         await apiClient.put(`/admin/users/settings/${userId}`, updateDto);
         
-        alert('사용자 정보가 성공적으로 수정되었습니다.');
+        showAlert('사용자 정보가 성공적으로 수정되었습니다.');
         closeEditModal(); // 모달 닫기
         loadUsers();      // 목록 새로고침
 
     } catch (error) {
         console.error('사용자 수정 실패:', error);
-        alert('수정 중 오류가 발생했습니다.');
+        showAlert('수정 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -179,7 +179,7 @@ async function updateUserStatus(selectElement, userId, newStatusValue) {
     //    @NotNull 필드를 채워야 하기 때문입니다.
     const user = cachedUsers.find(u => u.id == userId);
     if (!user) {
-        alert('캐시된 사용자 정보를 찾을 수 없어 상태를 변경할 수 없습니다.');
+        showAlert('캐시된 사용자 정보를 찾을 수 없어 상태를 변경할 수 없습니다.', 'error');
         return;
     }
 
@@ -205,7 +205,7 @@ async function updateUserStatus(selectElement, userId, newStatusValue) {
 
     } catch (error) {
         console.error('사용자 상태 변경 실패:', error);
-        alert('상태 변경 중 오류가 발생했습니다.');
+        showAlert('상태 변경 중 오류가 발생했습니다.', 'error');
 
         // 6. (실패 시) 시각적 스타일을 원래대로 롤백
         selectElement.value = !isActive; // <select> 값 되돌리기
