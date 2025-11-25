@@ -85,12 +85,12 @@ const HOME_API_BASE = 'http://localhost:8080/api/home'; // [신규] 통계용 AP
 const today = new Date();
 
 async function initHomeData() {
-    console.log('🏠 홈 데이터 초기화 시작');
+    console.log('홈 데이터 초기화 시작');
     displayCurrentDate();
     
     // 병렬로 호출하여 로딩 속도 최적화 가능하지만, 순차 호출로 안정성 확보
     await fetchHomeData(); // 상단 3개 카드 (캘린더/Todo)
-    await loadHomeStats(); // [신규] 하단 4개 통계 카드
+    await loadHomeStats(); // 하단 4개 통계 카드
 }
 
 function displayCurrentDate() {
@@ -115,7 +115,7 @@ async function fetchHomeData() {
     const endStr = formatDate(endDate);
 
     try {
-        console.log(`📡 일정/할일 데이터 요청: ${startStr} ~ ${endStr}`);
+        console.log(`일정/할일 데이터 요청: ${startStr} ~ ${endStr}`);
 
         const response = await fetch(`${CALENDAR_API_BASE}/events?startDate=${startStr}&endDate=${endStr}`, {
             method: 'GET', credentials: 'include', cache: 'no-store'
@@ -135,24 +135,20 @@ async function fetchHomeData() {
 
                 return {
                     ...event, 
-                    date: new Date(event.eventDate),
+                    date: new Date(event.eventDate + 'T00:00:00'),
                     type: type,
                     important: event.isImportant,
                     completed: event.isCompleted
                 };
             });
-            console.log(`✅ 일정/할일 수신 완료: ${events.length}건`);
+            console.log(`일정/할일 수신 완료: ${events.length}건`);
             renderAllComponents(events);
         } else {
-            console.warn(`⚠️ API 오류 발생 (Status: ${response.status})`);
-            // 401(Unauthorized)이나 500 등의 에러 발생 시 구글 연동 배너 표시 고려
-            if (response.status === 401 || response.status === 500) {
-                 showGoogleLinkModal(); // 배너 표시
-            }
+            console.warn(`API 오류 발생 (Status: ${response.status})`);
             renderAllComponents([]);
         }
     } catch (error) {
-        console.error("❌ 네트워크 오류:", error);
+        console.error("네트워크 오류:", error);
         renderAllComponents([]);
     }
 }
@@ -161,7 +157,7 @@ async function fetchHomeData() {
 //  4. 하단 통계 데이터 로드
 // =========================================
 async function loadHomeStats() {
-    console.log('📊 통계 데이터 로드 시작...');
+    console.log('통계 데이터 로드 시작...');
     try {
         const response = await fetch(`${HOME_API_BASE}/stats`, {
             method: 'GET',
@@ -186,10 +182,10 @@ async function loadHomeStats() {
             updateStatCard('stat-decisions', data.confirmedMeetings + '건', 'stat-decision-diff', data.meetingsDiff);
 
         } else {
-            console.warn(`⚠️ 통계 API 오류 (Status: ${response.status})`);
+            console.warn(`통계 API 오류 (Status: ${response.status})`);
         }
     } catch (error) {
-        console.error("❌ 통계 API 네트워크 오류:", error);
+        console.error("통계 API 네트워크 오류:", error);
     }
 }
 
@@ -296,7 +292,7 @@ function renderImportantMeetings(events) {
     
     const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     
-    // 필터: 중요(star) + 회의(meeting) + 오늘 이후
+    // 필터: 중요(별) + 회의(meeting) + 오늘 이후
     const meetings = events.filter(e => (e.important === true && e.type === 'meeting') && e.date >= todayOnly)
                            .sort((a, b) => a.date - b.date)
                            .slice(0, 3);
