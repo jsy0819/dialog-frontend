@@ -142,6 +142,49 @@
         </div>
     </div>
 
+    <div id="deleteConfirmModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="color: #dc2626;">삭제 확인</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 15px; line-height: 1.7; color: #374151;">
+                    정말 이 회의록을 삭제하시겠습니까?<br>
+                    삭제된 데이터는 복구할 수 없습니다.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" style="background: #e5e7eb; color: #374151; margin-right: 8px;" onclick="closeDeleteModal()">취소</button>
+                <button class="btn" style="background: #dc2626; color: white;" onclick="confirmDeleteProcess()">삭제하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteSuccessModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" style="color: #111827;">알림</h3>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0;">
+                    <div style="width: 48px; height: 48px; background: #F3E8FF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8E44AD" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p style="font-size: 16px; font-weight: 600; color: #374151; margin-top: 8px;">
+                        삭제되었습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn" style="background: #8E44AD; color: white; width: 100%; justify-content: center;" onclick="closeSuccessModal()">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="./static/js/app.js"></script>

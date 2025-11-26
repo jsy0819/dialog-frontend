@@ -1,5 +1,5 @@
 /* ===============================
-   meetingDetail.js - 최종 수정
+   meetingDetail.js - 최종 수정 (삭제 성공 모달 적용)
 =================================*/
 
 let meetingData = null; 
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // 챗봇 로드 및 이벤트 연결 (추가된 부분)
+    // 챗봇 로드 및 이벤트 연결
     fetch("components/chatbot.html")
         .then(res => res.text())
         .then(html => {
@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const chatInput = container.querySelector("#chatInput");
             const floatingBtn = document.getElementById("floatingChatBtn");
 
-            // [중요] chatbot.js 로드 시점 차이로 인한 오류 방지를 위해 화살표 함수로 감싸서 실행
             if (closeBtn) {
                 closeBtn.addEventListener("click", () => {
                     if (typeof closeChat === 'function') closeChat();
@@ -271,9 +270,6 @@ function displayTranscripts() {
         const div = document.createElement("div");
         div.className = `transcript-item ${isSelf ? 'is-self' : ''}`;
         
-        // [수정] 헤더 내용 (이름 . 시간)
-        // CSS에서 flex-direction: row; justify-content: flex-end; 이므로
-        // HTML 순서대로 [이름] [시간]이 오른쪽에 붙어서 나옵니다.
         let headerContent = '';
         if (isSelf) {
             headerContent = `
@@ -331,7 +327,7 @@ function toggleHighlight(keyword) {
     displayTranscripts(); 
 }
 
-/* Export & Helper Functions (기존 유지) */
+/* Export & Helper Functions */
 async function exportPDF() {
     if (!meetingData) return;
     if (typeof jspdf === 'undefined') {
@@ -396,7 +392,6 @@ function drawPDF(doc, data) {
     currentY += (titleLines.length * 10) + 10;
     
     doc.setFontSize(10); doc.setTextColor(100, 100, 100);
-    // [추가] 소요 시간 표시
     doc.text(`일시: ${data.date}  |  소요 시간: ${data.duration}`, margin, currentY);
     currentY += 6;
     
@@ -412,16 +407,15 @@ function drawPDF(doc, data) {
     currentY += 10;
     doc.setFontSize(11);
     
-    // 중요도 표시 (색상 로직 통일: 높음-빨강, 낮음-노랑, 보통-주황)
     const impLevel = (typeof data.importance === 'object') ? data.importance.level : data.importance;
     const reasonText = (typeof data.importance === 'object') ? data.importance.reason : "";
     
     let impColor = [0,0,0];
     const upperImp = String(impLevel).toUpperCase();
     
-    if (upperImp === 'HIGH' || upperImp === '높음') impColor = [239, 68, 68];       // Red
-    else if (upperImp === 'LOW' || upperImp === '낮음') impColor = [234, 179, 8];   // Yellow
-    else impColor = [249, 115, 22];                                                 // Orange (Medium)
+    if (upperImp === 'HIGH' || upperImp === '높음') impColor = [239, 68, 68];
+    else if (upperImp === 'LOW' || upperImp === '낮음') impColor = [234, 179, 8];
+    else impColor = [249, 115, 22];
     
     doc.setTextColor(...impColor);
     doc.text(`[중요도: ${impLevel}]`, margin, currentY);
@@ -431,7 +425,6 @@ function drawPDF(doc, data) {
     doc.text(reasonLines, margin, currentY + 6);
     currentY += (reasonLines.length * 6) + 10;
     
-    // 목적, 안건, 요약 내용
     const items = [{l:"회의 목적", t: data.purpose}, {l:"주요 안건", t: data.agenda}, {l:"전체 요약", t: data.summary}];
     items.forEach(i => {
         doc.setTextColor(0,0,0); doc.text(`[${i.l}]`, margin, currentY);
@@ -440,26 +433,23 @@ function drawPDF(doc, data) {
         doc.text(lines, margin+5, currentY+6);
         currentY += (lines.length*6) + 10;
         
-        // 페이지 넘김 체크
         if (currentY > pageHeight - margin) { doc.addPage(); currentY = 20; }
     });
 
-    // [추가] 하이라이트 키워드 섹션
+    // 하이라이트 키워드 섹션
     doc.setTextColor(0, 0, 0);
     doc.text(`[하이라이트 키워드]`, margin, currentY);
     currentY += 6;
     
     if (data.keywords && data.keywords.length > 0) {
-        // 키워드 배열이 문자열인지 객체인지 확인하여 처리
         const keywordStr = data.keywords.map(k => {
             const text = k.text || k;
-            // source가 있으면 표시, 없으면 생략
             const source = k.source ? (String(k.source).toUpperCase() === 'AI' ? '(AI)' : '(User)') : '';
             return `${text} ${source}`;
         }).join(',  ');
         
         const kwLines = doc.splitTextToSize(keywordStr, contentWidth - 5);
-        doc.setTextColor(41, 128, 185); // 파란색
+        doc.setTextColor(41, 128, 185); 
         doc.text(kwLines, margin + 5, currentY);
         currentY += (kwLines.length * 6) + 10;
     } else {
@@ -470,7 +460,7 @@ function drawPDF(doc, data) {
 
     if (currentY > pageHeight - 40) { doc.addPage(); currentY=20; }
 
-    // [추가] 액션 아이템 섹션
+    // 액션 아이템 섹션
     doc.setFontSize(14); doc.setTextColor(0,0,0);
     doc.text("2. 액션 아이템", margin, currentY);
     currentY += 8;
@@ -485,7 +475,6 @@ function drawPDF(doc, data) {
             const actionText = `• ${sourceTag} ${a.task} (담당: ${assignee}, 기한: ${date})`;
             const actionLines = doc.splitTextToSize(actionText, contentWidth);
             
-            // 액션 아이템 페이지 넘김 체크
             if (currentY + (actionLines.length * 6) > pageHeight - margin) {
                 doc.addPage();
                 currentY = 20;
@@ -500,14 +489,13 @@ function drawPDF(doc, data) {
     }
     currentY += 15;
 
-    // 3. 상세 대화 내용 (번호 수정: 2 -> 3)
+    // 3. 상세 대화 내용
     if (currentY > pageHeight - 40) { doc.addPage(); currentY=20; }
     doc.setFontSize(14); doc.setTextColor(0,0,0);
     doc.text("3. 상세 대화 내용", margin, currentY);
     currentY += 10;
     doc.setFontSize(10);
     
-    // [수정] 랜덤 색상 생성 로직
     const speakerColors = {};
     function getRandomColor() {
         const r = Math.floor(Math.random() * 200); 
@@ -526,29 +514,21 @@ function drawPDF(doc, data) {
         }
         const thisColor = speakerColors[name];
         
-        // 1. 텍스트 줄 수 미리 계산
         const textLines = doc.splitTextToSize(text, contentWidth);
-        
-        // 2. 필요한 전체 높이 계산 (헤더 높이 5 + 텍스트 높이 + 여백 8)
         const blockHeight = 5 + (textLines.length * 5) + 8;
         
-        // 3. 공간 부족 시 통째로 다음 페이지로 이동
         if (currentY + blockHeight > pageHeight - margin) {
             doc.addPage();
-            currentY = 20; // 새 페이지 상단 여백
+            currentY = 20; 
         }
         
-        // 4. 헤더 출력 (이름 + 시간)
         const header = `${name} [${time}]`;
         doc.setTextColor(...thisColor); 
         doc.text(header, margin, currentY); 
         currentY += 5;
         
-        // 5. 본문 출력
         doc.setTextColor(0,0,0);
         doc.text(textLines, margin, currentY); 
-        
-        // 다음 블록을 위한 Y축 이동
         currentY += (textLines.length * 5) + 8;
     });
 }
@@ -558,24 +538,64 @@ function goToEdit() {
     window.location.href = `recordFinish.html?meetingId=${urlParams.get('id')}`;
 }
 
-async function deleteMeeting() {
+/* ==================================================
+   [수정됨] 삭제 관련 함수 (모달 띄우기)
+   ================================================== */
+
+function deleteMeeting() {
     if (!meetingData || !meetingData.id) return;
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+    
+    // 모달 띄우기 (hidden 클래스 제거)
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+/* 삭제 모달 닫기 */
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/* [중요] 삭제 확인 -> 성공 모달 표시 로직 */
+async function confirmDeleteProcess() {
+    // 1. 먼저 삭제 확인 모달(빨간색 창)을 닫습니다.
+    closeDeleteModal();
+
+    if (!meetingData || !meetingData.id) return;
+
     try {
         const response = await fetch(`http://localhost:8080/api/meetings/${meetingData.id}`, {
             method: 'DELETE',
             credentials: 'include'
         });
+
         if (response.ok) {
-            alert("삭제되었습니다.");
-            window.location.href = 'meetings.html'; 
+            // 2. 성공 시 alert 대신 성공 모달(보라색)을 띄웁니다.
+            const successModal = document.getElementById('deleteSuccessModal');
+            if (successModal) {
+                successModal.classList.remove('hidden');
+            }
         } else {
             throw new Error("삭제 실패");
         }
     } catch (error) {
         console.error(error);
-        showErrorModal("오류 발생");
+        showErrorModal("삭제 중 오류가 발생했습니다.");
     }
+}
+
+/* [중요] 성공 모달 닫기 -> 목록 페이지 이동 */
+function closeSuccessModal() {
+    const modal = document.getElementById('deleteSuccessModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    // 확인 버튼을 누르면 목록 페이지로 이동
+    window.location.href = 'meetings.html'; 
 }
 
 function formatDuration(sec) {
