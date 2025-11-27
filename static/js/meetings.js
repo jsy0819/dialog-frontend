@@ -121,7 +121,7 @@ function setupEventListeners() {
 /* 서버에서 데이터 가져오기 */
 async function fetchMeetings() {
     try {
-        const response = await fetch('http://localhost:8080/api/meetings', {
+        const response = await fetch('http://dialogai.duckdns.org:8080/api/meetings', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'

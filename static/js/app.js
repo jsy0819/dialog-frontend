@@ -2,7 +2,7 @@
 // API URL 설정
 // ============================================================
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://dialogai.duckdns.org:8080/api';
 
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -283,7 +283,7 @@ function displayUserName(user) {
 // axios 인스턴스 생성, 쿠키 자동 포함
 // =====================================
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'http://dialogai.duckdns.org:8080/api',
     withCredentials: true,
 });
 
@@ -589,7 +589,7 @@ async function logout() {
     const result = await showConfirm('로그아웃 하시겠습니까?');
     if (result) {
         try {
-            await fetch('http://localhost:8080/api/auth/logout', {
+            await fetch('http://dialogai.duckdns.org:8080/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

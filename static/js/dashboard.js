@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadAdminDashboardStats() {
   try {
     // 사용자 전체 통계 (예: 신규 가입자, 전체 가입 수 등)
-    const res = await fetch('http://localhost:8080/api/admin/statistics/users', {
+    const res = await fetch('http://dialogai.duckdns.org:8080/api/admin/statistics/users', {
       credentials: 'include'
     });
     if (!res.ok) throw new Error('네트워크 에러');
@@ -59,7 +59,7 @@ async function loadAdminDashboardStats() {
       meetingMonthElem.textContent = `+${data.meetingCountThisMonth} (이번 달)`;
 
     // 오늘 생성 회의, 신규 가입 변화 데이터 (변화량 포함)
-    const todayStatsRes = await fetch('http://localhost:8080/api/admin/todaystats', {
+    const todayStatsRes = await fetch('http://dialogai.duckdns.org:8080/api/admin/todaystats', {
       credentials: 'include'
     });
     if (!todayStatsRes.ok) throw new Error('오늘 통계 API 호출 실패');

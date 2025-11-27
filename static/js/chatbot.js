@@ -160,7 +160,7 @@ function newChat() {
 // 사용자 이름 가져오기
 async function fetchUserName() {
     try {
-        const response = await fetch('http://localhost:8080/api/auth/me', {  // [수정] user -> auth
+        const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/me', {  // [수정] user -> auth
             credentials: 'include'
         });
         if (response.ok) {
@@ -278,7 +278,7 @@ async function sendMessage() {
     try {
         // FAQ는 FastAPI로, 검색은 Spring Boot로
         const endpoint = currentChatMode === 'search' 
-            ? 'http://localhost:8080/api/chatbot/search'  // Spring Boot
+            ? 'http://dialogai.duckdns.org:8080/api/chatbot/search'  // Spring Boot
             : 'http://localhost:8000/api/faq';            // FastAPI
 
         // [수정] 모드별로 요청 body 구조 다르게 생성

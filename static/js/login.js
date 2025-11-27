@@ -147,7 +147,7 @@ signinForm.addEventListener('submit', async function(e) {
     }
 
     try {
-        const response = await fetch('http://localhost:8080/api/auth/login', {
+        const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, rememberId }),
@@ -307,7 +307,7 @@ signupForm.addEventListener('submit', async function(e) {
     }
 
     try {
-        const response = await fetch('http://localhost:8080/api/auth/signup', {
+        const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password, terms: true })
@@ -517,7 +517,7 @@ window.addEventListener('message', (event) => {
 const googleLoginBtn = document.getElementById('googleLoginBtn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', function() {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+        window.location.href = 'http://dialogai.duckdns.org:8080/oauth2/authorization/google';
     });
 }
 
@@ -525,7 +525,7 @@ if (googleLoginBtn) {
 const kakaoLoginBtn = document.getElementById('kakaoLoginBtn');
 if (kakaoLoginBtn) {
     kakaoLoginBtn.addEventListener('click', function() {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
+        window.location.href = 'http://dialogai.duckdns.org:8080/oauth2/authorization/kakao';
     });
 }
 
@@ -533,7 +533,7 @@ if (kakaoLoginBtn) {
 const googleSignupBtn = document.getElementById('googleSignupBtn');
 if (googleSignupBtn) {
     googleSignupBtn.addEventListener('click', function() {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+        window.location.href = 'http://dialogai.duckdns.org:8080/oauth2/authorization/google';
     });
 }
 
@@ -541,7 +541,7 @@ if (googleSignupBtn) {
 const kakaoSignupBtn = document.getElementById('kakaoSignupBtn');
 if (kakaoSignupBtn) {
     kakaoSignupBtn.addEventListener('click', function() {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
+        window.location.href = 'http://dialogai.duckdns.org:8080/oauth2/authorization/kakao';
     });
 }
 
@@ -583,8 +583,8 @@ if (sendForgotBtn) {
             }, 3000);
             return;
         }
-        
-        fetch('http://localhost:8080/api/auth/forgotPassword', {
+
+        fetch('http://dialogai.duckdns.org:8080/api/auth/forgotPassword', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })

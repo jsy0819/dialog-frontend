@@ -67,7 +67,7 @@ resetPasswordForm.addEventListener('submit', async function(e) {
     }
 
     try {
-        const response = await fetch('http://localhost:8080/api/auth/resetPassword', {
+        const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/resetPassword', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token, newPassword })
