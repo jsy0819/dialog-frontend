@@ -99,6 +99,16 @@ async function fetchHomeData() {
             method: 'GET', credentials: 'include', cache: 'no-store'
         });
 
+        // [수정] Google 연동 필요 시 안내 표시
+        if (response.status === 401) {
+            const errorData = await response.json();
+            if (errorData.errorCode === 'GOOGLE_REAUTH_REQUIRED') {
+                console.log('Google 캘린더 연동 필요');
+                renderAllComponents([], true);
+                return;
+            }
+        }
+
         if (response.ok) {
             const data = await response.json();
             const events = data.map(event => {
@@ -201,8 +211,16 @@ function loadRecentMeetings() {
         method: 'GET',
         credentials: 'include' 
     })
-    .then(response => {
-        if (response.status === 401) throw new Error('인증 실패 (401)');
+    .then(async response => {
+        // [수정] Google 연동 필요 시 빈 배열 반환
+        if (response.status === 401) {
+            const errorData = await response.json();
+            if (errorData.errorCode === 'GOOGLE_REAUTH_REQUIRED') {
+                console.log('Google 캘린더 연동 필요 (최근 회의)');
+                return [];
+            }
+            throw new Error('인증 실패 (401)');
+        }
         if (!response.ok) throw new Error('최근 회의 API 호출 실패');
         return response.json();
     })
@@ -228,9 +246,10 @@ function loadRecentMeetings() {
 // =========================================
 //  6. UI 렌더링 (To-Do, 중요 회의, 최근 회의)
 // =========================================
-function renderAllComponents(events) {
+// [수정] needGoogleLink 파라미터 추가
+function renderAllComponents(events, needGoogleLink = false) {
     renderTodoList(events);
-    renderImportantMeetings(events);
+    renderImportantMeetings(events, needGoogleLink);
 }
 
 function renderTodoList(events) {
@@ -265,12 +284,27 @@ function renderTodoList(events) {
     });
 }
 
-function renderImportantMeetings(events) { 
+// [수정] needGoogleLink 파라미터 추가
+function renderImportantMeetings(events, needGoogleLink = false) { 
     const listEl = document.querySelector('.deadline-list');
     if (!listEl) return;
+
+    // [수정] Google 연동 필요 시 안내 표시
+    if (needGoogleLink) {
+        listEl.innerHTML = `
+        <div class="google-empty-state" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px;">       
+            <p class="empty-state-text" style="font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 24px; text-align: center;">
+                Google 캘린더를 연동하고<br>중요한 회의 일정을 자동으로 불러오세요.
+            </p>
+            <button class="empty-state-button" style="height: 34px; padding: 0 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; border-radius: 8px; background: #8E44AD; color: #fff; border: none; cursor: pointer;" onclick="openGoogleAuthModal()">
+                + Google 계정 연동하기
+            </button>
+        </div>`;
+        return;
+    }
     
     const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    
+
     // 필터: 중요(별) + 회의(meeting) + 오늘 이후
     const meetings = events.filter(e => (e.important === true && e.type === 'meeting') && e.date >= todayOnly)
                            .sort((a, b) => a.date - b.date)
