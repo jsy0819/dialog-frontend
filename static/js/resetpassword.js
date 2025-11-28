@@ -1,8 +1,10 @@
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // [수정] HTTPS 적용 - Caddy가 프록시하므로 포트 번호 제거
-const BACKEND_BASE_URL = isLocal ? 'http://localhost:8080' : 'https://dialogai.duckdns.org';
-const AI_BASE_URL = isLocal ? 'http://localhost:8000' : 'https://dialogai.duckdns.org';
+// const BACKEND_BASE_URL = isLocal ? 'http://localhost:8080' : 'https://dialogai.duckdns.org';
+// const AI_BASE_URL = isLocal ? 'http://localhost:8000' : 'https://dialogai.duckdns.org';
+const BACKEND_BASE_URL = isLocal ? 'http://localhost:8080' : 'https://dialogai.ddns.net';
+const AI_BASE_URL = isLocal ? 'http://localhost:8000' : 'https://dialogai.ddns.net';
 
 function getTokenFromUrl() {
     const params = new URLSearchParams(window.location.search);
