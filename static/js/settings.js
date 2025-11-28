@@ -91,7 +91,7 @@ async function savePersonalInfo() {
 
     // 5. (핵심) 백엔드 API에 PUT 요청을 보내 DB 업데이트를 시도합니다.
     try {
-        const response = await fetch('http://dialogai.duckdns.org:8080/api/user/settings', {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/user/settings`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

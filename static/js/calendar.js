@@ -8,7 +8,7 @@ let selectedDate;             // (API) YYYY-MM-DD 형식의 문자열
 let starListenerAttached = false; // 별표 이벤트 리스너 중복 방지
 
 // API URL
-const CALENDAR_BASE_URL = 'http://dialogai.duckdns.org:8080/api/calendar';
+const CALENDAR_BASE_URL = `${BACKEND_BASE_URL}/api/calendar`;
 
 // (참고) LocalStorage 키는 이 파일에서 사용되지 않습니다.
 const STORAGE_KEY = 'calendar_events';
@@ -33,7 +33,7 @@ async function addDailyTodo() {
     
     const todoTitle = todoInput.value.trim();
     const targetDate = selectedDate; // YYYY-MM-DD
-    const TODO_CREATE_URL = 'http://dialogai.duckdns.org:8080/api/calendar/events';
+    const TODO_CREATE_URL = `${BACKEND_BASE_URL}/api/calendar/events`;
 
     try {
         console.log(`🔄 To-do 생성 요청: ${todoTitle} (마감일: ${targetDate})`);
@@ -241,7 +241,7 @@ function showGoogleLinkButton() {
         linkButton.addEventListener('click', async () => {
             try {
                 console.log('🔄 Google 연동 시작 API 호출...');
-                const response = await fetch('http://dialogai.duckdns.org:8080/api/calendar/link/start', { 
+                const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/link/start`, {
                     method: 'GET',
                     credentials: 'include'
                 });

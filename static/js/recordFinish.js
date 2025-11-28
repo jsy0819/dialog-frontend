@@ -215,7 +215,7 @@ async function startSpeakerAnalysis(audioUrl) {
   console.log("발화자 분석 시작 요청:", audioUrl);
 
   try {
-    const res = await fetch("http://localhost:8080/api/analyze/object", {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/analyze/object`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: 'include',
@@ -250,7 +250,8 @@ async function pollSpeakerResult(token, filename) {
   console.log("JSON polling 시작...");
 
   // filename 반드시 포함해야 Object Storage JSON 찾을 수 있음
-  const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
+  //const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
+    const url = `${BACKEND_BASE_URL}/api/analyze/${token}?filename=${filename}`;
 
   let tryCount = 0;
 
@@ -416,12 +417,12 @@ async function loadMeetingDataFromServer() {
         console.log(`📥 회의 데이터 로드 시작 (ID: ${meetingId})`);
 
         // 1. 회의 기본 정보 로드 (동일)
-        const response = await fetch(`http://dialogai.duckdns.org:8080/api/meetings/${meetingId}`, { credentials: 'include' });
+        const response = await fetch(`${BACKEND_BASE_URL}/api/meetings/${meetingId}`, { credentials: 'include' });
         if (!response.ok) throw new Error('회의 정보를 불러올 수 없습니다.');
         const data = await response.json();
 
         // 2. 발화 로그(Transcript) 로드
-        const transcriptResponse = await fetch(`http://dialogai.duckdns.org:8080/api/transcripts/meeting/${meetingId}`, { credentials: 'include' });
+        const transcriptResponse = await fetch(`${BACKEND_BASE_URL}/api/transcripts/meeting/${meetingId}`, { credentials: 'include' });
         
         let loadedTranscripts = [];
         const restoredMapping = {}; 
@@ -538,7 +539,7 @@ async function loadMeetingDataFromServer() {
 /* Recording 데이터 로드 */
 async function loadRecording(meetingId) {
     try {
-        const response = await fetch(`http://dialogai.duckdns.org:8080/api/recordings/meeting/${meetingId}`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/recordings/meeting/${meetingId}`, {
             credentials: 'include'
         });
 
@@ -847,7 +848,7 @@ async function generateAISummary(userJob) {
         const meetingId = getMeetingId();
         if (!meetingId) throw new Error("Meeting ID를 찾을 수 없습니다.");
 
-        const response = await fetch(`http://dialogai.duckdns.org:8080/api/meetings/summarize?meetingId=${meetingId}`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/meetings/summarize?meetingId=${meetingId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -1369,7 +1370,7 @@ async function toggleCalendar(index) {
             }
         };
         try {
-            const response = await fetch('http://dialogai.duckdns.org:8080/api/calendar/events', {
+            const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -1394,7 +1395,7 @@ async function toggleCalendar(index) {
             return;
         }
         try {
-            const response = await fetch(`http://dialogai.duckdns.org:8080/api/calendar/events/${eventId}`, {
+            const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events/${eventId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -2120,7 +2121,7 @@ async function saveMeeting() {
     showLoadingMessage("회의록을 서버에 저장 중...");
 
     try {
-        const response = await fetch(`http://dialogai.duckdns.org:8080/api/meetings/${meetingId}`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/meetings/${meetingId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -2274,7 +2275,7 @@ async function generateMyActions() {
     }
 
     try {
-        const response = await fetch(`http://dialogai.duckdns.org:8080/api/meetings/generate-all-actions?meetingId=${meetingId}`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/meetings/generate-all-actions?meetingId=${meetingId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -2526,7 +2527,7 @@ async function saveMeetingDataToServer() {
         console.log(`📤 전송할 Transcript 수: ${transcriptDtos.length}개`);
 
         const response = await fetch(
-            `http://dialogai.duckdns.org:8080/api/transcripts/batch?meetingId=${meetingId}`,
+            `${BACKEND_BASE_URL}/api/transcripts/batch?meetingId=${meetingId}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

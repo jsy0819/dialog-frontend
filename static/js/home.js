@@ -58,8 +58,8 @@ function activateCurrentNav(sidebar) {
 // =========================================
 //  2. 홈 데이터 초기화 및 API 설정
 // =========================================
-const CALENDAR_API_BASE = 'http://dialogai.duckdns.org:8080/api/calendar';
-const HOME_API_BASE = 'http://dialogai.duckdns.org:8080/api/home'; // [신규] 통계용 API
+const CALENDAR_API_BASE = `${BACKEND_BASE_URL}/api/calendar`;
+const HOME_API_BASE = `${BACKEND_BASE_URL}/api/home`; // [신규] 통계용 API
 const today = new Date();
 
 async function initHomeData() {

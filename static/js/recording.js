@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 =================================*/
 async function loadCurrentUser() {
   try {
-    const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/me', {
+    const response = await fetch(`${BACKEND_BASE_URL}/api/auth/me`, {
       credentials: 'include'
     });
     if (response.ok) {

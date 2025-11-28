@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 사용자 정보 로드 함수 (API에서만)
 async function loadCurrentUser() {
   try {
-    const response = await fetch('http://dialogai.duckdns.org:8080/api/auth/me', {
+    const response = await fetch(`${BACKEND_BASE_URL}/api/auth/me`, {
       credentials: 'include'  // 이 옵션만 있으면 브라우저가 HttpOnly 쿠키를 요청에 자동 포함!
     });
     if (response.ok) {
