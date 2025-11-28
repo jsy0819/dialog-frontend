@@ -213,7 +213,8 @@ function loadRecentMeetings() {
             date: new Date(meeting.eventDate + 'T' + (meeting.time || '00:00:00')), 
             title: meeting.title,
             type: 'meeting',
-            eventDateStr: meeting.eventDate
+            eventDateStr: meeting.eventDate,
+            meetingId: meeting.sourceId
         }));
 
         renderRecentMeetings(processedEvents);
@@ -334,13 +335,17 @@ function renderRecentMeetings(events) {
     listEl.innerHTML = meetings.length ? '' : '<div class="empty-message" style="color: #9ca3af; text-align: center; padding: 24px 0;">최근 회의 기록이 없습니다</div>';
     
     meetings.forEach(m => {
+        const clickAction = m.meetingId 
+            ? `goToMeetingDetail('${m.meetingId}')` 
+            : `goToCalendarWithDate('${m.eventDateStr}')`;
+
         listEl.innerHTML += `
             <div class="meeting-item">
                 <div class="meeting-info">
                     <div class="meeting-title" 
-                         onclick="goToCalendarWithDate('${m.eventDateStr}')"
-                         style="cursor: pointer;"
-                         title="캘린더에서 이 날짜 보기">
+                        onclick="${clickAction}"
+                        style="cursor: pointer;"
+                        title="회의 상세 보기">
                         ${m.title}
                     </div>
                     <div class="meeting-meta">
@@ -355,6 +360,13 @@ function renderRecentMeetings(events) {
 // =========================================
 //  7. 액션 및 헬퍼 함수들
 // =========================================
+
+// 상세 페이지 이동
+function goToMeetingDetail(meetingId) {
+    if (meetingId) {
+        window.location.href = `meetingDetail.html?id=${meetingId}`;
+    }
+}
 
 // To-Do 완료 상태 업데이트
 async function updateTodoStatus(todoId, isCompleted) {   

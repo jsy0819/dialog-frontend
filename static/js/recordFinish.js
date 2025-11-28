@@ -250,8 +250,8 @@ async function pollSpeakerResult(token, filename) {
   console.log("JSON polling 시작...");
 
   // filename 반드시 포함해야 Object Storage JSON 찾을 수 있음
-  //const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
-    const url = `${BACKEND_BASE_URL}/api/analyze/${token}?filename=${filename}`;
+  // const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
+  const url = `${BACKEND_BASE_URL}/api/analyze/${token}?filename=${filename}`;
 
   let tryCount = 0;
 
@@ -498,7 +498,9 @@ async function loadMeetingDataFromServer() {
             // 서버 DTO 필드명이 isCompleted 인지, completed 인지 확인 필요
             // DTO에는 isCompleted로 되어 있으므로 아래 코드가 맞음.
             // 만약 안 나온다면 || false 처리 때문에 false로 덮어써지는지 확인.
-            isCompleted: item.isCompleted === true // 명시적으로 true일 때만 true
+            isCompleted: item.isCompleted === true, // 명시적으로 true일 때만 true
+            googleEventId: item.googleEventId,
+            addedToCalendar: !!item.googleEventId
         }));
 
         await loadRecording(meetingId);
@@ -1308,52 +1310,98 @@ function editAction(index) {
     document.getElementById("actionTitle").value = action.title;
     document.getElementById("actionDeadline").value = action.deadline || "";
     
+    // 담당자 Select 박스 구성
     const assigneeSelect = document.getElementById("actionAssignee");
     assigneeSelect.innerHTML = '<option value="">담당자 선택</option>';
     (meetingData.participants || []).forEach(p => {
         const selected = (p === action.assignee) ? 'selected' : '';
         assigneeSelect.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
     });
-
     const assigneeField = document.querySelector('.form-group:has(#actionAssignee)');
     if (assigneeField) assigneeField.style.display = 'block';
-    
+
     const modal = document.getElementById("actionModal");
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
     
     const saveBtn = modal.querySelector(".btn-primary");
     saveBtn.textContent = "수정";
-    saveBtn.onclick = () => {
-        const title = document.getElementById("actionTitle").value.trim();
-        if (!title) {
+    
+    // 저장(수정) 버튼 클릭 핸들러
+    saveBtn.onclick = async () => {
+        const newTitle = document.getElementById("actionTitle").value.trim();
+        const newDeadline = document.getElementById("actionDeadline").value;
+        const newAssignee = document.getElementById("actionAssignee").value;
+
+        if (!newTitle) {
             showErrorMessage("액션 아이템을 입력해주세요.");
             return;
         }
-        const deadline = document.getElementById("actionDeadline").value;
-        const assignee = document.getElementById("actionAssignee").value;
-        
-        actionItems[index] = { 
-            title, 
-            assignee: assignee || "", 
-            deadline,
-            addedToCalendar: action.addedToCalendar, 
-            source: action.source || 'USER',
-            isCompleted: action.isCompleted || false
-        };
-        
-        renderActionItems();
-        closeActionModal();
-        showSuccessMessage("액션 아이템이 수정되었습니다.");
-        
-        saveBtn.textContent = "추가";
-        saveBtn.onclick = saveAction;
+
+        // 로딩 표시 (선택 사항)
+        saveBtn.disabled = true;
+        saveBtn.textContent = "처리 중...";
+
+        try {
+            // 1. 캘린더에 연동된 항목이라면 -> 백엔드 API 먼저 호출
+            if (action.addedToCalendar && action.googleEventId) {
+                const bodyData = {
+                    calendarId: "primary",
+                    eventData: {
+                        summary: newTitle,
+                        start: { date: newDeadline },
+                        end: { date: newDeadline }
+                    }
+                };
+
+                const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(bodyData)
+                });
+
+                if (!response.ok) {
+                    throw new Error("캘린더 서버 동기화 실패"); 
+                    // 여기서 에러가 발생하면 catch로 점프 -> 아래 로컬 수정 코드는 실행 안 됨
+                }
+                console.log("DB 및 캘린더 업데이트 성공");
+            }
+
+            // 2. API 성공 시에만 로컬 데이터 업데이트
+            actionItems[index] = { 
+                ...action, 
+                title: newTitle, 
+                assignee: newAssignee || "", 
+                deadline: newDeadline
+            };
+            
+            renderActionItems();
+            closeActionModal();
+            showSuccessMessage("액션 아이템이 수정되었습니다.");
+
+            // 캘린더 연동 여부와 관계없이 내용이 바뀌었으므로 DB 저장
+            await saveMeetingInBackground();
+            
+            // 버튼 상태 원복 (다음 추가를 위해)
+            saveBtn.textContent = "추가";
+            saveBtn.onclick = saveAction;
+
+        } catch (error) {
+            console.error("수정 실패", error);
+            showErrorMessage("수정에 실패했습니다.");
+            // 실패했으므로 모달을 닫지 않고, 버튼만 다시 활성화해줍니다.
+            saveBtn.textContent = "수정";
+        } finally {
+            saveBtn.disabled = false;
+        }
     };
 }
 
 async function toggleCalendar(index) {      
-  const item = actionItems[index];
+    const item = actionItems[index];
     if (!item) return;   
+
     const isAdding = !item.addedToCalendar;
 
     if (isAdding) {       
@@ -1361,55 +1409,88 @@ async function toggleCalendar(index) {
             showErrorMessage("캘린더에 추가하려면 '기한'이 설정되어야 합니다.");
             return;
         }
+
         const bodyData = {
             calendarId: "primary", 
             eventData: {
                 summary: item.title, 
+                description: `담당자: ${item.assignee || '미지정'}`, 
                 start: { date: item.deadline },
                 end: { date: item.deadline }
             }
         };
+
         try {
+            showLoadingMessage("캘린더에 등록 중...");
             const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(bodyData)
             });
-            if (!response.ok) throw new Error('캘린더 이벤트 생성에 실패했습니다.');
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || '생성 실패');
+            }
 
             const newEvent = await response.json();
-            item.googleEventId = newEvent.googleEventId; 
+            
+            // 상태 업데이트
+            item.googleEventId = newEvent.id || newEvent.googleEventId; 
             item.addedToCalendar = true; 
+            
+            hideLoadingMessage();
             showSuccessMessage("캘린더에 추가되었습니다.");
+
+            // 즉시 DB 저장 (Google ID 동기화)
+            await saveMeetingInBackground();
+
         } catch (error) {
+            hideLoadingMessage();
             console.error("캘린더 추가 실패:", error);
-            showErrorMessage(error.message || "캘린더 추가에 실패했습니다.");
+            showErrorMessage("추가 실패: " + error.message);
+            // 실패했으므로 item.addedToCalendar는 false 상태 유지됨
         }
+
     } else {
+        // === [삭제 로직] ===
         const eventId = item.googleEventId;
         if (!eventId) {
-            showErrorMessage("캘린더에서 제거할 수 없습니다. (이벤트 ID 없음)");
-            item.addedToCalendar = false;
-            renderActionItems();
+            showErrorMessage("이벤트 ID가 없어 삭제할 수 없습니다.");
             return;
         }
+
         try {
+            showLoadingMessage("캘린더에서 삭제 중...");
             const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events/${eventId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
-            if (!response.ok) throw new Error('캘린더 이벤트 삭제에 실패했습니다.');
 
+            if (!response.ok && response.status !== 404) {
+                throw new Error('삭제 실패');
+            }
+
+            // 상태 업데이트
             item.googleEventId = null; 
             item.addedToCalendar = false; 
+            
+            hideLoadingMessage();
             showErrorMessage("캘린더에서 제거되었습니다.");
+
+            // 즉시 DB 저장 (연동 해제 상태 동기화)
+            await saveMeetingInBackground();
+
         } catch (error) {
+            hideLoadingMessage();
             console.error("캘린더 삭제 실패:", error);
-            showErrorMessage(error.message || "캘린더 삭제에 실패했습니다.");
+            showErrorMessage("삭제 실패: " + error.message);
+            // 실패했으므로 item.addedToCalendar는 true 상태 유지됨
         }
     }
-    renderActionItems();
+    
+    renderActionItems(); // UI 갱신
 }
 
 function openActionModal() {
@@ -1465,10 +1546,37 @@ function closeActionModal() {
 }
 
 function deleteAction(index) {
-  openConfirmModal("액션 아이템 삭제", "이 액션 아이템을 삭제하시겠습니까?", () => {
-      actionItems.splice(index, 1);
-      renderActionItems();
-      showErrorMessage("액션 아이템이 삭제되었습니다.");
+  openConfirmModal("액션 아이템 삭제", "이 액션 아이템을 삭제하시겠습니까?", async () => {
+      const item = actionItems[index];
+
+      try {
+          // 1. 캘린더에 추가된 항목이면 서버 삭제 시도
+          if (item.addedToCalendar && item.googleEventId) {
+              const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/events/${item.googleEventId}`, {
+                  method: 'DELETE',
+                  credentials: 'include'
+              });
+              
+              if (!response.ok && response.status !== 404) {
+                  // 404(이미 없음)가 아닌 다른 에러라면 실패 처리
+                  throw new Error("서버 삭제 실패");
+              }
+              console.log("DB 및 캘린더 삭제 성공");
+          }
+
+          // 2. 서버 삭제 성공(또는 연동 안 된 항목) 시 로컬 삭제
+          actionItems.splice(index, 1);
+          renderActionItems();
+          showErrorMessage("액션 아이템이 삭제되었습니다."); // 빨간 토스트 (삭제 알림)
+
+          // 항목이 삭제되었으므로 DB 즉시 저장
+          await saveMeetingInBackground();
+
+      } catch (error) {
+          console.error("삭제 실패:", error);
+          showErrorMessage("삭제에 실패했습니다. (서버 동기화 오류)");
+          // 로컬 데이터는 유지됨
+      }
   });
 }
 
@@ -1736,7 +1844,8 @@ function collectFinalData() {
       assignee: a.assignee || "미지정",
       deadline: a.deadline || "-",
       isCompleted: a.isCompleted,
-      source: a.source ? a.source.toUpperCase() : "USER"
+      source: a.source ? a.source.toUpperCase() : "USER",
+      googleEventId: a.googleEventId || null 
   }));
 
   // 4. 중요도 데이터 처리
@@ -2028,32 +2137,45 @@ async function exportPDF() {
 
 // 서버 전송 데이터 수집 (ID/이름 구분 및 참석자 포함)
 function collectUpdateData() {
-    // 1. 중요도 데이터 처리
-    let importanceData = { level: "MEDIUM", reason: "" };
+    // 1. 중요도 데이터 처리 (사유 없으면 null 처리)
+    let importanceData = null; // 기본값 null (분석 전)
+
     if (meetingData.importance) {
+        let level = "MEDIUM";
+        let reason = "";
+
         if (typeof meetingData.importance === 'object') {
-            importanceData.level = meetingData.importance.level || "MEDIUM";
-            importanceData.reason = meetingData.importance.reason || "";
+            level = meetingData.importance.level || "MEDIUM";
+            reason = meetingData.importance.reason || "";
         } else {
-            importanceData.level = meetingData.importance; 
+            level = meetingData.importance;
+        }
+
+        // 사유가 있고 유효한 경우에만 객체 생성, 아니면 null 유지
+        if (reason && reason.trim() !== "" && reason !== "평가 내용 없음") {
+            importanceData = {
+                level: level,
+                reason: reason
+            };
         }
     }
 
-    // 2. 키워드 리스트 처리 (기존 동일)
+    // 2. 키워드 리스트 처리
     const keywordList = (meetingData.keywords || []).map(k => ({
         text: k.text, source: k.source ? k.source.toUpperCase() : "USER"
     }));
 
-    // 3. 액션 아이템 리스트 처리 (기존 동일)
+    // 3. 액션 아이템 리스트 처리
     const actionItemList = (actionItems || []).map(item => ({
         task: item.title, 
         assignee: item.assignee, 
         dueDate: item.deadline,
         source: item.source ? item.source.toUpperCase() : "USER",
-        isCompleted: item.isCompleted || false 
+        isCompleted: item.isCompleted || false,
+        googleEventId: item.googleEventId || null
     }));
 
-    // 4. 참석자 명단 처리 (기존 동일)
+    // 4. 참석자 명단 처리
     const participantList = (meetingData.participants || []).map(name => {
         let originalId = Object.keys(speakerMappingData).find(key => speakerMappingData[key] === name);
         if (!originalId) {
@@ -2066,15 +2188,12 @@ function collectUpdateData() {
     });
 
     // 5. 발화 로그(Transcript) 처리
-    // 먼저 시간순으로 정렬을 확실하게 합니다.
     const sortedTranscripts = (meetingData.transcripts || []).sort((a, b) => a.startTime - b.startTime);
-
     const transcriptList = sortedTranscripts.map((t, index) => {
         let realSpeakerId = t.speaker; 
         if (!realSpeakerId) {
             realSpeakerId = t.speakerName || "Unknown";
         }
-
         return {
             id: t.id, 
             speaker: realSpeakerId,
@@ -2082,16 +2201,12 @@ function collectUpdateData() {
             text: t.text || "",
             startTime: t.startTime || 0,
             endTime: t.endTime || 0,
-            
-            // 현재 정렬된 순서(index)대로 번호를 다시 매깁니다. (0, 1, 2, 3...)
-            // 이렇게 하면 중간에 삭제하거나 추가해도 DB에는 깔끔한 순서로 저장됩니다.
             sequenceOrder: index, 
-            
             isDeleted: t.isDeleted || false 
         };
     });
 
-    // 6. 최종 리턴 (기존 동일)
+    // 6. 최종 리턴
     return {
         title: meetingData.title,
         purpose: meetingData.purpose,
@@ -2103,6 +2218,56 @@ function collectUpdateData() {
         participants: participantList, 
         transcripts: transcriptList
     };
+}
+
+/* =========================================================
+   액션 아이템만 부분 저장하는 로직
+   ========================================================= */
+
+// 1. 액션 아이템만 뽑아내는 함수
+function collectActionItemsOnly() {
+    const actionItemList = (actionItems || []).map(item => ({
+        task: item.title, 
+        assignee: item.assignee, 
+        dueDate: item.deadline,
+        source: item.source ? item.source.toUpperCase() : "USER",
+        isCompleted: item.isCompleted || false,
+        googleEventId: item.googleEventId || null
+    }));
+
+    // 다른 필드(transcripts, summary 등)는 아예 보내지 않음 -> 백엔드가 무시함
+    return {
+        actionItems: actionItemList
+    };
+}
+
+// 2. 백그라운드 저장 함수 (액션 아이템 전용)
+async function saveMeetingInBackground() {
+    if (!meetingData) return;
+    const meetingId = getMeetingId();
+    if (!meetingId) return;
+
+    // 전체 데이터가 아니라 '액션 아이템'만 가져옴
+    const partialDto = collectActionItemsOnly(); 
+    
+    console.log("액션 아이템만 DB 저장 중...", partialDto);
+
+    try {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/meetings/${meetingId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(partialDto)
+        });
+
+        if (!response.ok) {
+            console.warn("자동 저장 실패", await response.text());
+        } else {
+            console.log("DB 동기화 완료");
+        }
+    } catch (error) {
+        console.error("네트워크 오류", error);
+    }
 }
 
 async function saveMeeting() {

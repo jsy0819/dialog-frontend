@@ -205,6 +205,16 @@
 }
 
 
+/* 테이블 셀 텍스트 줄바꿈 처리 */
+.table-cell {
+    white-space: normal;
+    word-break: break-all; 
+    min-width: 0; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 /* 우선순위 뱃지 (일반 텍스트 스타일) */
 .priority-badge {
     display: inline-block;

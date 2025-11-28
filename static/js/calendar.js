@@ -1,5 +1,5 @@
 /* ===============================================
-// 1. 전역 상태 및 API 설정 (병합됨)
+1. 전역 상태 및 API 설정 (병합됨)
 =================================================*/
 let currentUser = null;         // (API) 로그인한 사용자 정보
 let calendarEvents = [];      // (API) 백엔드에서 불러온 이벤트 원본 배열
@@ -16,7 +16,7 @@ const TODO_STORAGE_KEY = 'calendar_todos';
 
 
 /* ===============================================
-// 2. To-do CRUD (API 버전)
+2. To-do CRUD (API 버전)
 =================================================*/
 
 async function addDailyTodo() {
@@ -57,28 +57,41 @@ async function addDailyTodo() {
             todoInput.value = ''; 
             renderCalendar(); 
         } else {
-             const errorText = await response.text();
-             console.error(` To-do 생성 실패 (${response.status}):`, errorText);
-             showAlert(`To-do 생성 실패: ${errorText}`, 'error');
+            const errorText = await response.text();
+            console.error(` To-do 생성 실패 (${response.status}):`, errorText);
+            showAlert(`To-do 생성 실패: ${errorText}`, 'error');
         }
     } catch (error) {
         console.error(' To-do 생성 중 네트워크 오류:', error);
         showAlert('네트워크 오류 또는 JSON 처리 오류가 발생했습니다.', 'error');
     }
 }
-async function editApiTodo(eventId, currentTitle, eventDate) {
-    // 1. 커스텀 모달 생성
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'modal-overlay'; 
-    modalOverlay.id = 'editTodoModal';
 
-    const modalContent = document.createElement('div');    
-    modalContent.className = 'modal-container'; 
+/* 2. 할 일 수정 모달 (오버레이 잠시 숨김 로직 적용) */
+async function editApiTodo(eventId, currentTitle, eventDate) {
+    // 1. 일정 오버레이가 열려있다면 잠시 숨김
+    const dailyOverlay = document.getElementById('dailyEventsList');
+    const isOverlayOpen = dailyOverlay && !dailyOverlay.classList.contains('hidden');
+    
+    if (isOverlayOpen) {
+        dailyOverlay.classList.add('hidden'); // 시야에서 제거
+    }
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay'; 
+    modalOverlay.id = 'editTodoModal';
+    
+    // Z-Index 및 포지션 강제 설정
+    modalOverlay.style.zIndex = "2147483647"; 
+    modalOverlay.style.position = "fixed";
+
+    const modalContent = document.createElement('div');    
+    modalContent.className = 'modal-container'; 
 
     modalContent.innerHTML = `
         <div class="modal-header">
             <h3>할 일 수정</h3>
-            <button class="close-btn">×</button> 
+            <button class="close-btn">x</button> 
         </div>
         <div class="modal-body">
             <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">할 일 내용</label>
@@ -90,134 +103,200 @@ async function editApiTodo(eventId, currentTitle, eventDate) {
         </div>
     `;
 
-    modalOverlay.appendChild(modalContent);
-    document.body.appendChild(modalOverlay);
-    
-    // 3. 모달 내 input에 포커스
-    const editInput = document.getElementById('editTodoInput');
-    if (editInput) {
-        editInput.focus();
-        editInput.select();
-    }
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    
+    // DOM에 추가된 후 변수를 여기서 확실하게 선언합니다.
+    const editInput = document.getElementById('editTodoInput');
 
-    // 4. 애니메이션을 위해 10ms 뒤 'visible' 클래스 추가
-    setTimeout(() => modalOverlay.classList.add('visible'), 10);
+    // 포커스 및 애니메이션
+    setTimeout(() => {
+        if(editInput) { editInput.focus(); editInput.select(); }
+        modalOverlay.classList.add('visible');
+    }, 10);
 
-    // 5. 닫기 함수
-    const closeModal = () => {
-        modalOverlay.classList.remove('visible');
-        setTimeout(() => {
-            if (document.body.contains(modalOverlay)) {
-                document.body.removeChild(modalOverlay);
-            }
-        }, 300); // 0.3초 트랜지션 후 제거
-    };
+    // 닫기 함수
+    const closeModal = () => {
+        modalOverlay.classList.remove('visible');
+        setTimeout(() => {
+            if (document.body.contains(modalOverlay)) {
+                document.body.removeChild(modalOverlay);
+            }
+            // 닫을 때 숨겼던 오버레이 복구
+            if (isOverlayOpen) {
+                dailyOverlay.classList.remove('hidden');
+            }
+        }, 300);
+    };
 
-    // 6. 이벤트 리스너 (확인, 취소, X, 배경)
-    modalContent.querySelector('.confirm').addEventListener('click', async () => {
-        const newTitle = editInput.value;
-        
-        if (!newTitle || !newTitle.trim() || newTitle === currentTitle) {
-            closeModal();
-            return; 
-        }
-    
-        const EDIT_URL = `${CALENDAR_BASE_URL}/events/${eventId}`; 
-        
-        const bodyData = {
-            calendarId: "primary",
-            eventData: {
-                summary: newTitle.trim(),
-                start: { date: eventDate },
-                end: { date: eventDate }
-            }
-        };
+    // 저장 로직
+    modalContent.querySelector('.confirm').addEventListener('click', async () => {
+        // 여기서도 위에서 선언한 editInput 변수를 사용
+        const newTitle = editInput.value;
+        
+        if (!newTitle || !newTitle.trim() || newTitle === currentTitle) {
+            closeModal();
+            return; 
+        }
+        
+        const EDIT_URL = `${CALENDAR_BASE_URL}/events/${eventId}`; 
+        const bodyData = {
+            calendarId: "primary",
+            eventData: { summary: newTitle.trim(), start: { date: eventDate }, end: { date: eventDate } }
+        };
 
-        try {
-            console.log(`🔄 To-do 수정 요청: ${eventId} -> ${newTitle}`);
-            const response = await fetch(EDIT_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(bodyData)
-            });
+        try {
+            const response = await fetch(EDIT_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(bodyData)
+            });
 
-            if (response.ok) {
-                showSuccessMessage('할 일이 수정되었습니다');
-                renderCalendar(); // 캘린더 새로고침
-            } else {
-                let errorText = await response.text();
-               try {
-                   const errorJson = JSON.parse(errorText);
-                   if (errorJson && errorJson.message) {
-                       errorText = errorJson.message;
-                   }
-               } catch (e) {}
-                console.error(` To-do 수정 실패 (${response.status}):`, errorText);
-                showAlert(`To-do 수정 실패: ${errorText}`, 'error');
-            }
-        } catch (error) {
-            console.error(' To-do 수정 중 네트워크 오류:', error);
-            showAlert('네트워크 오류가 발생했습니다.', 'error');
-        } finally {
-            closeModal(); // 성공/실패 여부와 관계없이 모달 닫기
-        }
-    });
+            if (response.ok) {
+                if (typeof showSuccessMessage === 'function') showSuccessMessage('할 일이 수정되었습니다');
+                
+                // 메모리 갱신
+                const ev = calendarEvents.find(e => String(e.id)===String(eventId) || String(e.googleEventId)===String(eventId));
+                if(ev) ev.title = newTitle.trim();
 
-    // 취소 버튼
-    modalContent.querySelector('.cancel').addEventListener('click', closeModal);
-    
-    // 닫기 버튼 (헤더)
-    modalContent.querySelector('.close-btn').addEventListener('click', closeModal);
+                // 화면 갱신
+                if (typeof renderCalendar === 'function') await renderCalendar(); 
+                if(selectedDate && typeof showDailyEventOverlay === 'function') showDailyEventOverlay(selectedDate);
+                
+                // 모달 닫기 (이때는 오버레이 복구 로직을 타지 않게 하기 위해 직접 DOM 제거하거나 플래그 처리 가능하지만, 
+                // showDailyEventOverlay가 다시 오버레이를 켜주므로 closeModal 호출해도 무방하거나 더 자연스러움)
+                
+                // 여기서는 showDailyEventOverlay가 켜지므로, closeModal 호출 시 '숨김 복구'가 겹치지 않게
+                // 모달만 조용히 제거합니다.
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => { 
+                    if(document.body.contains(modalOverlay)) document.body.removeChild(modalOverlay); 
+                }, 300);
 
-    // 배경 클릭
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            closeModal();
-        }
-    });
+            } else {
+                console.error(await response.text());
+                closeModal(); // 실패 시 원래대로 복구
+            }
+        } catch (error) {
+            console.error(error);
+            closeModal();
+        }
+    });
 
-    // Enter 키로 '확인' 동작
-    if (editInput) {
-        editInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                modalContent.querySelector('.confirm').click();
-         }
-        });
-    }
+    modalContent.querySelector('.cancel').addEventListener('click', closeModal);
+    modalContent.querySelector('.close-btn').addEventListener('click', closeModal);
+    
+    // 배경 클릭 닫기
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
+    
+    // 엔터키 입력 시 저장 (이제 editInput 변수가 정의되어 있어 에러 안 남)
+    if (editInput) {
+        editInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                modalContent.querySelector('.confirm').click();
+            }
+        });
+    }
 }
-// (API) To-do 삭제
-async function deleteApiTodo(eventId, title) {
-    const isConfirmed = await showConfirm(`"${title}" 할 일을 삭제하시겠습니까?`);
 
-    if (isConfirmed) {        
+/* 3. 커스텀 삭제 모달 (오버레이 잠시 숨김 로직 적용) */
+function openDeleteConfirmModal(title, onConfirm) {
+    // 1. 일정 오버레이가 열려있다면 잠시 숨김
+    const dailyOverlay = document.getElementById('dailyEventsList');
+    const isOverlayOpen = dailyOverlay && !dailyOverlay.classList.contains('hidden');
+    
+    if (isOverlayOpen) {
+        dailyOverlay.classList.add('hidden');
+    }
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.zIndex = "2147483647";
+    modalOverlay.style.position = "fixed";
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-container';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3 style="color: #ef4444;">삭제 확인</h3>
+            <button class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #374151; line-height: 1.5;">
+                "${title}" 항목을 정말 삭제하시겠습니까?<br>
+                <span style="font-size: 13px; color: #6b7280;">삭제된 데이터는 복구할 수 없습니다.</span>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="edit-modal-btn cancel">취소</button>
+            <button class="edit-modal-btn confirm" style="background-color: #ef4444; border-color: #ef4444; color: white;">삭제하기</button>
+        </div>
+    `;
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+
+    setTimeout(() => modalOverlay.classList.add('visible'), 10);
+
+    const closeModal = () => {
+        modalOverlay.classList.remove('visible');
+        setTimeout(() => { 
+            if (document.body.contains(modalOverlay)) document.body.removeChild(modalOverlay);
+            // 취소 시 오버레이 복구
+            if (isOverlayOpen) dailyOverlay.classList.remove('hidden');
+        }, 300);
+    };
+
+    modalContent.querySelector('.confirm').addEventListener('click', () => {
+        // 확인 시: 모달만 닫고(DOM제거), 콜백 함수 실행
+        // 콜백 함수(deleteApiTodo 내부)에서 데이터 갱신 후 오버레이를 다시 켜줄 것임
+        modalOverlay.classList.remove('visible');
+        setTimeout(() => { if (document.body.contains(modalOverlay)) document.body.removeChild(modalOverlay); }, 300);
+        onConfirm();
+    });
+    
+    modalContent.querySelector('.cancel').addEventListener('click', closeModal);
+    modalContent.querySelector('.close-btn').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+}
+
+/* 4. 할 일 삭제 함수 (커스텀 모달 연결) */
+function deleteApiTodo(eventId, title) {
+    // 기존 showConfirm 대신 openDeleteConfirmModal 사용
+    openDeleteConfirmModal(title, async () => {
         const DELETE_URL = `${CALENDAR_BASE_URL}/events/${eventId}`;
 
         try {
-            console.log(`🔄 To-do 삭제 요청: ${eventId}`);
             const response = await fetch(DELETE_URL, {
                 method: 'DELETE',
                 credentials: 'include'
             });
 
             if (response.ok) {
-                showAlert('할 일이 삭제되었습니다'); // 성공 알림
-                renderCalendar(); // 캘린더 새로고침
+                if (typeof showSuccessMessage === 'function') showSuccessMessage('할 일이 삭제되었습니다');
+                
+                // 메모리 삭제
+                calendarEvents = calendarEvents.filter(e => String(e.id) !== String(eventId) && String(e.googleEventId) !== String(eventId));
+
+                // 데이터 갱신
+                if (typeof renderCalendar === 'function') await renderCalendar(); 
+                if(selectedDate && typeof showDailyEventOverlay === 'function') showDailyEventOverlay(selectedDate);
             } else {
-                const errorText = await response.text();
-                console.error(`To-do 삭제 실패 (${response.status}):`, errorText);
-                showAlert(`To-do 삭제 실패: ${errorText}`, 'error');
+                console.error("삭제 실패", await response.text());
             }
         } catch (error) {
-            console.error('To-do 삭제 중 네트워크 오류:', error);
-            showAlert('네트워크 오류가 발생했습니다.', 'error');
+            console.error('삭제 오류', error);
         }
-    }
+    });
 }
 
 /* ===============================================
-// 4. Google 연동 팝업 (API 기반)
+4. Google 연동 팝업 (API 기반)
 =================================================*/
 function showGoogleLinkButton() {
     const modal = document.getElementById('googleLinkModal');
@@ -241,7 +320,7 @@ function showGoogleLinkButton() {
         linkButton.addEventListener('click', async () => {
             try {
                 console.log('🔄 Google 연동 시작 API 호출...');
-                const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/link/start`, {
+                const response = await fetch(`${BACKEND_BASE_URL}/api/calendar/link/start`, { 
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -268,7 +347,7 @@ function formatDateString(date) {
     return `${year}-${month}-${day}`;
 }
 
-// [Helper] "YYYY-MM-DD" -> "12월 4일 (목)" (날짜 버그 수정)
+// "YYYY-MM-DD" -> "12월 4일 (목)" (날짜 버그 수정)
 function formatDisplayDate(dateString) {
     const parts = dateString.split('-').map(Number);
     const year = parts[0];
@@ -278,66 +357,82 @@ function formatDisplayDate(dateString) {
     return dateObj.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
 }
 
-// [Helper] API 데이터를 기반으로 특정 날짜의 이벤트 필터링
+// API 데이터를 기반으로 특정 날짜의 이벤트 필터링
 function getEventsForDate(dateString) { // "YYYY-MM-DD"
     return calendarEvents.filter(event => event.eventDate === dateString);
 }
 
-// [UI 렌더링] 우측 회의 목록 (UI Dev 코드)
-function renderMeetingList(dateString) {
-    const meetingListEl = document.getElementById('meetingList');
-    const meetingCardTitleContentEl = document.getElementById('meetingCardTitleContent');
-    const meetingCountEl = document.getElementById('meetingCount');
-    
-    if (!meetingListEl || !meetingCardTitleContentEl || !meetingCountEl) return;
+/* 5. 사이드바 회의 목록 - "더 보기" 기능 추가 */
+function renderMeetingList(dateStr) {
+    const list = document.getElementById('meetingList');
+    const title = document.getElementById('meetingCardTitleContent');
+    const count = document.getElementById('meetingCount');
+    if (!list) return;
 
-    const formattedDate = formatDisplayDate(dateString).split('(')[0].trim(); // "12월 4일"
-    meetingCardTitleContentEl.textContent = `${formattedDate}의 회의`;
+    title.textContent = `${formatDisplayDate(dateStr).split('(')[0].trim()}의 회의`;
+    const events = getEventsForDate(dateStr).filter(e => e.eventType === 'MEETING');
+    count.textContent = `(총 ${events.length}개)`;
+    list.innerHTML = '';
 
-    const selectedEvents = getEventsForDate(dateString);
-    const meetings = selectedEvents.filter(event => event.eventType === 'MEETING');
-
-    meetingListEl.innerHTML = '';
-    
-    meetingCountEl.textContent = `(총 ${meetings.length}개)`;
-
-    if (meetings.length === 0) {
-        meetingListEl.innerHTML = '<p class="cell-secondary" style="text-align: center; padding: 16px 0;">회의가 없습니다.</p>';
+    if (events.length === 0) {
+        list.innerHTML = '<p class="cell-secondary" style="text-align:center; padding:16px;">회의가 없습니다.</p>';
         return;
     }
-    
-    const meetingsToShow = meetings.slice(0, 5); // 5개 제한
 
-    meetingsToShow.forEach(event => {
-        const meetingItem = document.createElement('div');
-        meetingItem.className = 'meeting-item';
-        const isImportant = event.isImportant || false; 
-        const eventId = event.googleEventId || event.id;
+    // 회의 아이템 DOM 요소 생성 함수 (중복 제거)
+    const createMeetingItem = (e) => {
+        const item = document.createElement('div');
+        item.className = 'meeting-item';
+        const isImp = e.isImportant;
+        const id = e.googleEventId || e.id;
 
-        meetingItem.innerHTML = `
+        item.innerHTML = `
             <span class="meeting-item-dot type-team"></span>
-            <div class="meeting-item-text">${event.title}</div>
-            <button class="star-btn ${isImportant ? 'active' : ''}" data-meeting-id="${eventId}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="${isImportant ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+            <div class="meeting-item-text">${e.title}</div>
+            <button class="star-btn ${isImp ? 'active' : ''}" data-meeting-id="${id}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="${isImp ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
             </button>
         `;
-        
-        meetingListEl.appendChild(meetingItem);
+        return item;
+    };
+
+    // 1. 처음 5개 렌더링
+    events.slice(0, 5).forEach(e => {
+        list.appendChild(createMeetingItem(e));
     });
-    
-    if (meetings.length > 5) {
-        const remainingCount = meetings.length - 5;
-        const moreItemsEl = document.createElement('p');
-        moreItemsEl.className = 'cell-secondary';
-        moreItemsEl.style.cssText = 'text-align: center; font-size: 13px; margin-top: 10px; padding: 0;';
-        moreItemsEl.textContent = `...외 ${remainingCount}개 더 보기`;
-        meetingListEl.appendChild(moreItemsEl);
+
+    // 2. 5개 초과 시 '더 보기' 버튼 생성
+    if (events.length > 5) {
+        const remaining = events.length - 5;
+        const moreLink = document.createElement('div');
+
+        // 스타일 적용
+        moreLink.style.textAlign = 'center';
+        moreLink.style.padding = '12px 0';
+        moreLink.style.fontSize = '13px';
+        moreLink.style.color = '#6b7280';
+        moreLink.style.cursor = 'pointer';
+        moreLink.style.fontWeight = '500';
+        moreLink.textContent = `...외 ${remaining}개 더 보기`;
+
+        // 클릭 시 버튼을 제거하고 나머지 리스트를 추가함
+        moreLink.onclick = (e) => {
+            e.stopPropagation(); 
+            moreLink.remove();   // 더보기 버튼 삭제
+            
+            // 나머지 아이템 렌더링
+            events.slice(5).forEach(restEvent => {
+                list.appendChild(createMeetingItem(restEvent));
+            });
+        };
+
+        list.appendChild(moreLink);
     }
 }
 
-// [UI 렌더링] 우측 To-do 목록 (UI Dev 코드 + API 연동)
+// [UI 렌더링] 우측 To-do 목록
 function renderTodoList(dateString) {
     const todoListEl = document.getElementById('todoList');
     const todoCardTitleContentEl = document.getElementById('todoCardTitleContent');
@@ -345,7 +440,7 @@ function renderTodoList(dateString) {
 
     if (!todoListEl || !todoCardTitleContentEl || !todoCountEl) return;
 
-    const formattedDate = formatDisplayDate(dateString).split('(')[0].trim(); // "12월 4일"
+    const formattedDate = formatDisplayDate(dateString).split('(')[0].trim();
     todoCardTitleContentEl.textContent = `${formattedDate}의 To-do`;
 
     const selectedEvents = getEventsForDate(dateString);
@@ -361,44 +456,53 @@ function renderTodoList(dateString) {
 
     todos.forEach(event => {
         const todoItem = document.createElement('div');
-        //todoItem.className = 'todo-item';
         todoItem.className = `todo-item ${event.isCompleted ? 'completed' : ''}`;
+        
         const eventId = event.googleEventId || event.id; 
         
         todoItem.innerHTML = `
             <span class="todo-item-dot type-personal"></span>
             <div class="todo-item-text">${event.title}</div>
             <div class="todo-actions">
-                <button class="todo-action-btn edit" 
-                data-todo-id="${eventId}" 
-                data-todo-title="${event.title}" 
-                data-todo-date="${event.eventDate}">
+                <button type="button" class="todo-action-btn edit">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                 </button>
-                <button class="todo-action-btn delete" data-todo-id="${eventId}" data-todo-title="${event.title}">
+                <button type="button" class="todo-action-btn delete">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"/>
                     </svg>
                 </button>
             </div>
         `;
-               
-        todoItem.querySelector('.edit').addEventListener('click', function() {            
-            editApiTodo(this.dataset.todoId, this.dataset.todoTitle, this.dataset.todoDate); 
-        });
+
+        const editBtn = todoItem.querySelector('.edit');
+        editBtn.onclick = function(e) {
+            e.preventDefault(); 
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('수정 버튼 클릭됨');
+            editApiTodo(String(eventId), event.title, event.eventDate); 
+        };
         
-        todoItem.querySelector('.delete').addEventListener('click', function() {
-            deleteApiTodo(this.dataset.todoId, this.dataset.todoTitle);
-        });
+        const deleteBtn = todoItem.querySelector('.delete');
+        deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('삭제 버튼 클릭됨');
+            deleteApiTodo(String(eventId), event.title);
+        };
 
         todoListEl.appendChild(todoItem);
     });
+    
     todoCountEl.textContent = `(총 ${todos.length}개)`;
 }
+
 //  [UI 렌더링] 캘린더에 이벤트 점(dot) 표시 (UI Dev 코드)
 function displayEventDots(events) {
     document.querySelectorAll('.event-dots').forEach(dot => dot.remove());
@@ -788,104 +892,64 @@ function selectDate(dateStr, showOverlay = true) {
 //     }
 // }
 
+/* 1. 중요도 토글 함수 (좌측 달력 점 동기화 및 오버레이 갱신) */
 async function toggleImportance(eventId, starBtn) {
-    // [수정] 중복 클릭 방지: 이미 처리 중이면 무시
     if (starBtn.disabled) return;
     
+    // 1. [UI 즉시 반영] 버튼 스타일 토글
+    const isCurrentlyActive = starBtn.classList.contains('active');
+    const newState = !isCurrentlyActive;
+    
+    starBtn.classList.toggle('active', newState);
+    const svg = starBtn.querySelector('svg');
+    if(svg) svg.setAttribute('fill', newState ? 'currentColor' : 'none');
+
+    // 2. [데이터 동기화] 메모리 상의 이벤트 데이터 찾아서 갱신
+    const event = calendarEvents.find(e => String(e.googleEventId) === String(eventId) || String(e.id) === String(eventId));
+    
+    if (event) {
+        event.isImportant = newState;
+        
+        // 좌측 캘린더 그리드의 점(dot) 즉시 다시 그리기
+        if (typeof displayEventDots === 'function') displayEventDots(calendarEvents); 
+
+        // 3. [UI 동기화] 오버레이가 열려있고 해당 날짜라면 내용 갱신
+        if (selectedDate && event.eventDate === selectedDate) {
+            const overlay = document.getElementById('dailyEventsList');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                // showDailyEventOverlay 함수가 있다면 호출
+                if (typeof showDailyEventOverlay === 'function') showDailyEventOverlay(selectedDate); 
+            }
+        }
+    }
+
+    // 4. API 요청 (백그라운드)
+    starBtn.disabled = true; 
     const TOGGLE_URL = `${CALENDAR_BASE_URL}/events/${eventId}/importance`;
 
     try {
-        // [수정] 버튼 비활성화 (중복 클릭 방지)
-        starBtn.disabled = true;
-        starBtn.style.opacity = '0.5';
-        
-        console.log(`🔄 중요도 토글 요청: ${eventId}`);
-
         const response = await fetch(TOGGLE_URL, {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         });
 
-        // [디버깅] 응답 상태 확인
-        console.log('📡 응답 상태:', response.status);
-        console.log('📡 Content-Type:', response.headers.get('content-type'));
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // [수정] 응답에 JSON이 있는지 체크
-        let newImportantState;
-        const contentType = response.headers.get('content-type');
-        
-        if (response.status === 204) {
-            console.log('✅ 204 No Content - 로컬 상태 토글');
-            const event = calendarEvents.find(e => e.googleEventId === eventId || e.id === eventId);
-            if (event) {
-                event.isImportant = !event.isImportant;
-                newImportantState = event.isImportant;
-            } else {
-                newImportantState = !starBtn.classList.contains('active');
-            }
-        } else if (contentType && contentType.includes('application/json')) {
-            console.log('✅ JSON 응답 수신');
-            const result = await response.json();
-            newImportantState = result.isImportant;
-            
-            const event = calendarEvents.find(e => e.googleEventId === eventId || e.id === eventId);
-            if (event) {
-                event.isImportant = newImportantState;
-            }
-        } else {
-            // [추가] 텍스트 응답도 시도
-            const textResponse = await response.text();
-            console.log('📡 응답 본문:', textResponse);
-            
-            // 빈 응답이면 성공으로 간주하고 토글
-            if (!textResponse || textResponse.trim() === '') {
-                console.log('✅ 빈 응답 - 로컬 상태 토글');
-                const event = calendarEvents.find(e => e.googleEventId === eventId || e.id === eventId);
-                if (event) {
-                    event.isImportant = !event.isImportant;
-                    newImportantState = event.isImportant;
-                } else {
-                    newImportantState = !starBtn.classList.contains('active');
-                }
-            } else {
-                throw new Error(`서버 응답 형식이 올바르지 않습니다: ${textResponse}`);
-            }
-        }
-
-        console.log(`✅ 중요도 토글 성공: ${eventId}, 새 상태: ${newImportantState}`);
-
-        // UI 즉시 업데이트
-        starBtn.classList.toggle('active', newImportantState);
-        const svg = starBtn.querySelector('svg');
-        svg.setAttribute('fill', newImportantState ? 'currentColor' : 'none');
-
-        console.log('📌 업데이트 완료 - isImportant:', newImportantState);
-        
-        // [추가] 서버에서 최신 데이터 다시 불러오기
-        await renderCalendar();
-        console.log('🔄 캘린더 새로고침 완료');
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        console.log(`✅ 중요도 토글 서버 저장 완료 (${newState})`);
 
     } catch (error) {
         console.error('❌ 중요도 토글 실패:', error);
-        showAlert('중요도 변경에 실패했습니다.', 'error');
-        
-        // [수정] 실패 시 UI 롤백
-        starBtn.classList.toggle('active');
-        const svg = starBtn.querySelector('svg');
-        if (starBtn.classList.contains('active')) {
-            svg.setAttribute('fill', 'currentColor');
-        } else {
-            svg.setAttribute('fill', 'none');
+        // 실패 시 롤백
+        starBtn.classList.toggle('active', isCurrentlyActive);
+        if(svg) svg.setAttribute('fill', isCurrentlyActive ? 'currentColor' : 'none');
+        if (event) {
+            event.isImportant = isCurrentlyActive;
+            if (typeof displayEventDots === 'function') displayEventDots(calendarEvents);
+            if (selectedDate && typeof showDailyEventOverlay === 'function') showDailyEventOverlay(selectedDate);
         }
+        if (typeof showSuccessMessage === 'function') showSuccessMessage('중요도 변경 실패'); // 알림
     } finally {
-        // [수정] 항상 버튼 다시 활성화
         starBtn.disabled = false;
-        starBtn.style.opacity = '1';
     }
 }
 
