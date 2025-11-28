@@ -22,7 +22,7 @@ signupTab.addEventListener('click', function() {
     signupTab.classList.add('active');
     signinTab.classList.remove('active');
     signupForm.classList.add('active');
-    signinForm.classList.remove('active');
+    signinForm.classList.removea('active');
     authContainer.classList.add('signup-mode');
     hideAlerts();
     clearFieldErrors();
