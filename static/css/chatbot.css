@@ -498,3 +498,37 @@
 body > *:not(.chat-bot):not(.floating-chat-btn):not(#historySidebar):not(#historyOverlay) {
     z-index: auto !important;
 }
+
+
+/* 전문적인 챗봇 헤더 디자인 */
+.chat-avatar-pro {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(142, 68, 173, 0.25);
+}
+
+.chat-title-pro {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+}
+
+.chat-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* 기존 온라인 상태 숨기기 */
+.chat-online {
+    display: none;
+}

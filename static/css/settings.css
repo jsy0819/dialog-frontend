@@ -194,10 +194,14 @@
 .guide-detail-page {
     display: none;
     animation: slideIn 0.3s ease;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .guide-detail-page.active {
-    display: block;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 @keyframes slideIn {
@@ -237,15 +241,20 @@
     border: 1px solid #e5e7eb;
     border-radius: 16px;
     padding: 32px;
+    margin-bottom: 24px;
+}
+
+.guide-detail-section:last-child {
+    margin-bottom: 0;
 }
 
 .guide-detail-section h4 {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: #111827;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 2px solid #f3f4f6;
 }
 
 .guide-detail-section p {
@@ -257,7 +266,7 @@
 
 .guide-detail-section ul {
     margin: 16px 0;
-    padding-left: 20px;
+    padding-left: 24px;
 }
 
 .guide-detail-section li {
@@ -265,6 +274,10 @@
     color: #4b5563;
     line-height: 1.8;
     margin-bottom: 8px;
+}
+
+.guide-detail-section li:last-child {
+    margin-bottom: 0;
 }
 
 .feature-box {
@@ -280,6 +293,28 @@
     color: #8E44AD;
     margin-bottom: 8px;
     font-size: 14px;
+}
+
+.feature-box ul {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+.feature-box li {
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.feature-box li:last-child {
+    margin-bottom: 0;
+}
+
+.feature-box li strong {
+    display: inline;
+    color: #8E44AD;
+    margin-bottom: 0;
 }
 
 .example-box {
@@ -416,4 +451,518 @@
     .guide-detail-section {
         padding: 24px;
     }
+}
+
+/* ===== 챗봇 가이드 전용 스타일 ===== */
+
+/* 가이드 서브타이틀 */
+.guide-subtitle {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+/* 가이드 섹션 */
+.guide-section {
+    margin-bottom: 40px;
+}
+
+.guide-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+/* 목차 */
+.guide-toc {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.guide-toc h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 16px;
+}
+
+.toc-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toc-item:last-child {
+    margin-bottom: 0;
+}
+
+.toc-item:hover {
+    background: #faf5ff;
+    border-color: #8E44AD;
+    transform: translateX(4px);
+}
+
+.toc-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.toc-text {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toc-item:hover .toc-text {
+    color: #8E44AD;
+}
+
+/* 질문 박스 */
+.chatbot-question-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.question-category {
+    font-size: 15px;
+    font-weight: 700;
+    color: #8E44AD;
+    margin-bottom: 12px;
+}
+
+.question-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.question-list li {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.question-list li:last-child {
+    margin-bottom: 0;
+}
+
+.question-list li:hover {
+    background: #faf5ff;
+    border-color: #8E44AD;
+    transform: translateX(4px);
+}
+
+/* 팁 박스 */
+.tip-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 24px;
+}
+
+.tip-box h4 {
+    color: #92400e;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.tip-box p {
+    color: #78350f;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.tip-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* 시나리오 박스 */
+.scenario-box {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.scenario-title,
+.scenario-header {
+    background: linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%);
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.scenario-content {
+    padding: 20px;
+}
+
+.scenario-content p {
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.scenario-content p:last-child {
+    margin-bottom: 0;
+}
+
+.scenario-content strong {
+    color: #8E44AD;
+    font-weight: 600;
+}
+
+/* 좋은/아쉬운 예시 */
+.best-practice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.practice-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.practice-item.good {
+    border: 2px solid #10b981;
+}
+
+.practice-item.bad {
+    border: 2px solid #ef4444;
+}
+
+.practice-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.practice-icon {
+    font-size: 20px;
+}
+
+.practice-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.practice-example {
+    background: #f9fafb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.practice-reason {
+    color: #6b7280;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* 질문 잘하는 3가지 원칙 */
+.principles-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+}
+
+.principles-box h4 {
+    color: #92400e;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.principle-item {
+    margin-bottom: 12px;
+}
+
+.principle-item:last-child {
+    margin-bottom: 0;
+}
+
+.principle-item strong {
+    display: block;
+    color: #78350f;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.principle-item p {
+    color: #78350f;
+    font-size: 13px;
+    margin: 0;
+    padding-left: 20px;
+}
+
+.final-tip {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.final-tip h4 {
+    color: #0369a1;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.final-tip ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.final-tip li {
+    color: #075985;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+    padding-left: 24px;
+    position: relative;
+}
+
+.final-tip li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #0284c7;
+    font-weight: bold;
+}
+
+.final-tip li:last-child {
+    margin-bottom: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .best-practice-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 질문 리스트 2열 배치 */
+.question-list.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .question-list.two-column {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 챗봇 대화 예시 */
+.chat-example {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.user-msg {
+    background: #e5e7eb;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.bot-msg {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    color: #6b21a8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.user-msg:last-child,
+.bot-msg:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== 챗봇 가이드 개선 스타일 ===== */
+
+/* 섹션 구분선 */
+.guide-section {
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.guide-section:last-child {
+    border-bottom: none;
+}
+
+/* 질문 박스 2열 그리드 */
+.chatbot-question-box-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .chatbot-question-box-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 버튼 가이드 그리드 */
+.button-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .button-guide-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.button-guide-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.button-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.button-guide-item h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.button-guide-item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.button-guide-item li {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.8;
+    margin-bottom: 6px;
+    padding-left: 16px;
+    position: relative;
+}
+
+.button-guide-item li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #8E44AD;
+}
+
+.button-guide-item li:last-child {
+    margin-bottom: 0;
+}
+
+/* 팁 섹션 */
+.tip-section {
+    margin-bottom: 32px;
+}
+
+.tip-section:last-child {
+    margin-bottom: 0;
+}
+
+.tip-section h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #8E44AD;
+    margin-bottom: 12px;
+}
+
+.tip-section > p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* 심플 리스트 */
+.simple-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.simple-list li {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+}
+
+.simple-list li:last-child {
+    margin-bottom: 0;
 }

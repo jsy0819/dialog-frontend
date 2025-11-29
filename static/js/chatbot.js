@@ -562,7 +562,7 @@ function loadHistoryList() {
                         </svg>
                         ${timeStr}
                     </div>
-                    <div class="history-item-mode">${modeIcon} ${history.mode === 'search' ? '검색' : 'FAQ'}</div>
+                    <div class="history-item-mode">${modeIcon} ${history.mode === 'search' ? '회의검색' : '단어검색'}</div>
                 </div>
             </div>
         `;

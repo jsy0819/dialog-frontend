@@ -117,25 +117,25 @@ async function savePersonalInfo() {
 function showGuideDetail(type) {
     document.getElementById('guideMainMenu').style.display = 'none';
 
+    document.getElementById('chatbotGuideDetail').classList.remove('active');
     document.getElementById('coreGuideDetail').classList.remove('active');
     document.getElementById('advancedGuideDetail').classList.remove('active');
-    document.getElementById('tipsGuideDetail').classList.remove('active');
 
-    if (type === 'core') {
+    if (type === 'chatbot') {
+        document.getElementById('chatbotGuideDetail').classList.add('active');
+    } else if (type === 'core') {
         document.getElementById('coreGuideDetail').classList.add('active');
     } else if (type === 'advanced') {
         document.getElementById('advancedGuideDetail').classList.add('active');
-    } else if (type === 'tips') {
-        document.getElementById('tipsGuideDetail').classList.add('active');
     }
 }
 
 // 가이드 메인으로 돌아가기
 function showGuideMain() {
     document.getElementById('guideMainMenu').style.display = 'block';
+    document.getElementById('chatbotGuideDetail').classList.remove('active');
     document.getElementById('coreGuideDetail').classList.remove('active');
     document.getElementById('advancedGuideDetail').classList.remove('active');
-    document.getElementById('tipsGuideDetail').classList.remove('active');
 }
 
 function showSuccessMessage(message) {
@@ -232,4 +232,23 @@ function showErrorMessage(message) {
     msg.style.transform = 'translateX(-50%) translateY(-20px)';
     setTimeout(() => msg.remove(), 400);
   }, 3000);
+}
+
+// 섹션으로 스크롤챗봇 마
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+        
+        // 스크롤 후 살짝 하이라이트 효과
+        section.style.transition = 'background-color 0.3s';
+        section.style.backgroundColor = '#faf5ff';
+        
+        setTimeout(() => {
+            section.style.backgroundColor = '';
+        }, 1000);
+    }
 }
