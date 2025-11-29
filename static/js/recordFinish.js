@@ -295,71 +295,71 @@ function showErrorMessage(message) {
     }, 3000);
 }
 
-/* ===============================
-   발화자 분석 함수들
-=================================*/
-async function startSpeakerAnalysis(audioUrl) {
-  console.log("발화자 분석 시작 요청:", audioUrl);
+// /* ===============================
+//    발화자 분석 함수들
+// =================================*/
+// async function startSpeakerAnalysis(audioUrl) {
+//   console.log("발화자 분석 시작 요청:", audioUrl);
 
-  try {
-    const res = await fetch(`${AI_BASE_URL}/api/analyze/object`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: 'include',
-      body: JSON.stringify({
-        file_url: audioUrl,
-        language: "ko",
-        speaker_min: 2,
-        speaker_max: 10
-      })
-    });
+//   try {
+//     const res = await fetch(`${AI_BASE_URL}/api/analyze/object`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       credentials: 'include',
+//       body: JSON.stringify({
+//         file_url: audioUrl,
+//         language: "ko",
+//         speaker_min: 2,
+//         speaker_max: 10
+//       })
+//     });
 
-    if (!res.ok) throw new Error("발화자 분석 요청 실패: " + res.status);
+//     if (!res.ok) throw new Error("발화자 분석 요청 실패: " + res.status);
 
-    const data = await res.json();
-    const token = data.token;
-    const filename = data.original_filename;
+//     const data = await res.json();
+//     const token = data.token;
+//     const filename = data.original_filename;
 
-    console.log("token:", token, " filename:", filename);
+//     console.log("token:", token, " filename:", filename);
 
-    // filename 포함해서 polling 시작
-    pollSpeakerResult(token, filename);
+//     // filename 포함해서 polling 시작
+//     pollSpeakerResult(token, filename);
 
-  } catch (err) {
-    console.error("발화자 분석 시작 오류:", err);
-  }
-}
+//   } catch (err) {
+//     console.error("발화자 분석 시작 오류:", err);
+//   }
+// }
 
-// ================================
-// JSON polling
-// ================================
-async function pollSpeakerResult(token, filename) {
-  console.log("JSON polling 시작...");
+// // ================================
+// // JSON polling
+// // ================================
+// async function pollSpeakerResult(token, filename) {
+//   console.log("JSON polling 시작...");
 
-  // filename 반드시 포함해야 Object Storage JSON 찾을 수 있음
-  // const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
-  const url = `${AI_BASE_URL}/api/analyze/${token}?filename=${filename}`;
+//   // filename 반드시 포함해야 Object Storage JSON 찾을 수 있음
+//   // const url = `http://localhost:8080/api/analyze/${token}?filename=${filename}`;
+//   const url = `${AI_BASE_URL}/api/analyze/${token}?filename=${filename}`;
 
-  let tryCount = 0;
+//   let tryCount = 0;
 
-  const timer = setInterval(async () => {
-    tryCount++;
-    console.log(`🔍 polling... (${tryCount})`);
+//   const timer = setInterval(async () => {
+//     tryCount++;
+//     console.log(`🔍 polling... (${tryCount})`);
 
-    const res = await fetch(url);
-    if (!res.ok) return; // 아직 JSON 안 만들어짐
+//     const res = await fetch(url);
+//     if (!res.ok) return; // 아직 JSON 안 만들어짐
 
-    const result = await res.json();
+//     const result = await res.json();
 
-    if (result.success) {
-      clearInterval(timer);
-      console.log("🎉 발화자 분석 완료:", result);
+//     if (result.success) {
+//       clearInterval(timer);
+//       console.log("🎉 발화자 분석 완료:", result);
 
-      window.speakerAnalysisResult = result;
-      renderSpeakerResult(result);
-    }
-  }, 1500);
-}
+//       window.speakerAnalysisResult = result;
+//       renderSpeakerResult(result);
+//     }
+//   }, 1500);
+// }
 
 // ===============================
 // 발화자 분석 결과 UI 렌더링
@@ -413,6 +413,307 @@ function renderSpeakerResult(result) {
   saveMeetingDataToServer();
 
   showSuccessMessage("발화자 분석 결과가 적용되었습니다.");
+}
+
+/* ===============================
+   발화자 분석 함수들
+=================================*/
+async function startSpeakerAnalysis(audioUrl) {
+  console.log("🎤 발화자 분석 시작 요청:", audioUrl);
+  
+  // URL 검증
+  if (!audioUrl || !audioUrl.startsWith("https://")) {
+    console.error("❌ 유효하지 않은 오디오 URL:", audioUrl);
+    showErrorMessage("녹음 파일 URL이 올바르지 않습니다.");
+    return;
+  }
+
+  try {
+    const requestBody = {
+      file_url: audioUrl,
+      language: "ko",
+      speaker_min: 2,
+      speaker_max: 10
+    };
+
+    console.log("📤 요청 데이터:", JSON.stringify(requestBody, null, 2));
+
+    // 🔥 WebSocket과 동일한 패턴으로 URL 구성
+    // Nginx가 ai-server:8000으로 프록시
+    const protocol = location.protocol === "https:" ? "https:" : "http:";
+    const apiUrl = `${protocol}//${location.host}/api/analyze/object`;
+    
+    console.log("🔗 발화자 분석 API URL:", apiUrl);
+
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: 'include',
+      body: JSON.stringify(requestBody)
+    });
+
+    console.log("📥 응답 상태:", res.status, res.statusText);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("❌ 서버 응답 오류:", errorText);
+      
+      let userMessage = "발화자 분석 시작에 실패했습니다.";
+      if (res.status === 500) {
+        userMessage += " 서버 내부 오류가 발생했습니다.";
+      } else if (res.status === 404) {
+        userMessage += " API 엔드포인트를 찾을 수 없습니다.";
+      } else if (res.status === 403 || res.status === 401) {
+        userMessage += " 인증에 실패했습니다.";
+      }
+      
+      throw new Error(`${userMessage} (${res.status})`);
+    }
+
+    const data = await res.json();
+    console.log("✅ 발화자 분석 응답:", data);
+
+    const token = data.token;
+    const filename = data.original_filename;
+
+    if (!token) {
+      throw new Error("서버 응답에 token이 없습니다");
+    }
+
+    console.log("🎫 Token:", token);
+    console.log("📁 Filename:", filename || "없음");
+
+    showSuccessMessage("발화자 분석이 시작되었습니다. 수 분이 소요될 수 있습니다.");
+
+    // filename 포함해서 polling 시작
+    pollSpeakerResult(token, filename);
+
+  } catch (err) {
+    console.error("❌ 발화자 분석 시작 오류:", err);
+    showErrorMessage(err.message || "발화자 분석 시작 실패");
+    
+    // 에러 발생 시 버튼 다시 활성화
+    const analysisBtn = document.getElementById('startSpeakerAnalysisBtn');
+    if (analysisBtn) {
+      analysisBtn.disabled = false;
+      analysisBtn.classList.remove('analyzing');
+      const span = analysisBtn.querySelector('span');
+      if (span) span.textContent = '발화자 구분 분석 시작';
+    }
+  }
+}
+// /* ===============================
+//    발화자 분석 함수들
+// =================================*/
+// async function startSpeakerAnalysis(audioUrl) {
+//   console.log("🎤 발화자 분석 시작 요청:", audioUrl);
+  
+//   if (!audioUrl || !audioUrl.startsWith("https://")) {
+//     console.error("❌ 유효하지 않은 오디오 URL:", audioUrl);
+//     showErrorMessage("녹음 파일 URL이 올바르지 않습니다.");
+//     return;
+//   }
+
+//   try {
+//     const requestBody = {
+//       file_url: audioUrl,
+//       language: "ko",
+//       speaker_min: 2,
+//       speaker_max: 10
+//     };
+
+//     console.log("📤 요청 데이터:", JSON.stringify(requestBody, null, 2));
+
+//     // 🔥 안전한 URL 구성 (Live Server 감지 포함)
+//     let apiUrl;
+    
+//     if (location.port && location.port !== "80" && location.port !== "443") {
+//       // Live Server나 다른 포트 사용 시 경고 및 기본 포트로 변경
+//       console.warn(`⚠️ 비표준 포트 감지: ${location.port} → 80 포트로 변경`);
+//       const protocol = location.protocol === "https:" ? "https:" : "http:";
+//       const hostname = location.hostname; // localhost 또는 IP
+//       apiUrl = `${protocol}//${hostname}/api/analyze/object`;
+//     } else {
+//       // 정상 케이스: 상대 경로 사용
+//       const protocol = location.protocol === "https:" ? "https:" : "http:";
+//       apiUrl = `${protocol}//${location.host}/api/analyze/object`;
+//     }
+    
+//     console.log("🔗 발화자 분석 API URL:", apiUrl);
+
+//     const res = await fetch(apiUrl, {
+//       method: "POST",
+//       headers: { 
+//         "Content-Type": "application/json",
+//         "Accept": "application/json"
+//       },
+//       credentials: 'include',
+//       body: JSON.stringify(requestBody)
+//     });
+
+//     console.log("📥 응답 상태:", res.status, res.statusText);
+
+//     if (!res.ok) {
+//       const errorText = await res.text();
+//       console.error("❌ 서버 응답 오류:", errorText);
+      
+//       let userMessage = "발화자 분석 시작에 실패했습니다.";
+//       if (res.status === 500) {
+//         userMessage += " 서버 내부 오류가 발생했습니다.";
+//       } else if (res.status === 404) {
+//         userMessage += " API 엔드포인트를 찾을 수 없습니다.";
+//       } else if (res.status === 403 || res.status === 401) {
+//         userMessage += " 인증에 실패했습니다.";
+//       }
+      
+//       throw new Error(`${userMessage} (${res.status})`);
+//     }
+
+//     const data = await res.json();
+//     console.log("✅ 발화자 분석 응답:", data);
+
+//     const token = data.token;
+//     const filename = data.original_filename;
+
+//     if (!token) {
+//       throw new Error("서버 응답에 token이 없습니다");
+//     }
+
+//     console.log("🎫 Token:", token);
+//     console.log("📁 Filename:", filename || "없음");
+
+//     showSuccessMessage("발화자 분석이 시작되었습니다. 수 분이 소요될 수 있습니다.");
+
+//     pollSpeakerResult(token, filename);
+
+//   } catch (err) {
+//     console.error("❌ 발화자 분석 시작 오류:", err);
+//     showErrorMessage(err.message || "발화자 분석 시작 실패");
+    
+//     const analysisBtn = document.getElementById('startSpeakerAnalysisBtn');
+//     if (analysisBtn) {
+//       analysisBtn.disabled = false;
+//       analysisBtn.classList.remove('analyzing');
+//       const span = analysisBtn.querySelector('span');
+//       if (span) span.textContent = '발화자 구분 분석 시작';
+//     }
+//   }
+// }
+// ================================
+// JSON polling
+// ================================
+// async function pollSpeakerResult(token, filename) {
+//   console.log("JSON polling 시작...");
+
+//   // filename 반드시 포함해야 Object Storage JSON 찾을 수 있음
+//   const url = `/api/analyze/${token}?filename=${filename}`;
+
+//   let tryCount = 0;
+
+//   const timer = setInterval(async () => {
+//     tryCount++;
+//     console.log(`🔍 polling... (${tryCount})`);
+
+//     const res = await fetch(url);
+//     if (!res.ok) return; // 아직 JSON 안 만들어짐
+
+//     const result = await res.json();
+
+//     if (result.success) {
+//       clearInterval(timer);
+//       console.log("🎉 발화자 분석 완료:", result);
+
+//       window.speakerAnalysisResult = result;
+//       renderSpeakerResult(result);
+//     }
+//   }, 1500);
+// }
+
+// ================================
+// JSON polling
+// ================================
+async function pollSpeakerResult(token, filename) {
+  console.log("🔍 JSON polling 시작...");
+
+  // 🔥 WebSocket과 동일한 패턴으로 URL 구성
+  // Nginx가 ai-server:8000으로 프록시
+  const protocol = location.protocol === "https:" ? "https:" : "http:";
+  const url = `${protocol}//${location.host}/api/analyze/${token}?filename=${filename}`;
+  
+  console.log("📡 Polling URL:", url);
+
+  let tryCount = 0;
+  const MAX_TRIES = 120; // 최대 3분 (1.5초 * 120회)
+
+  const timer = setInterval(async () => {
+    tryCount++;
+    console.log(`🔍 polling... (${tryCount}/${MAX_TRIES})`);
+
+    try {
+      const res = await fetch(url, { credentials: 'include' });
+      
+      if (!res.ok) {
+        if (res.status === 404) {
+          console.log("⏳ 아직 분석 중... (JSON 파일 생성 대기)");
+          return; // 계속 폴링
+        }
+        
+        console.error(`❌ 폴링 오류: ${res.status}`);
+        clearInterval(timer);
+        showErrorMessage("발화자 분석 상태 확인 실패");
+        
+        // 버튼 복구
+        const analysisBtn = document.getElementById('startSpeakerAnalysisBtn');
+        if (analysisBtn) {
+          analysisBtn.disabled = false;
+          analysisBtn.classList.remove('analyzing');
+          const span = analysisBtn.querySelector('span');
+          if (span) span.textContent = '발화자 구분 분석 시작';
+        }
+        return;
+      }
+
+      const result = await res.json();
+      console.log("📊 폴링 응답:", result);
+
+      if (result.success) {
+        clearInterval(timer);
+        console.log("🎉 발화자 분석 완료:", result);
+
+        window.speakerAnalysisResult = result;
+        renderSpeakerResult(result);
+        
+        // 분석 완료 후 버튼 숨기기
+        const analysisBtn = document.getElementById('startSpeakerAnalysisBtn');
+        if (analysisBtn) {
+          analysisBtn.style.display = 'none';
+        }
+      }
+
+    } catch (error) {
+      console.error("❌ 폴링 요청 실패:", error);
+      // 네트워크 오류는 계속 재시도 (타임아웃까지)
+    }
+
+    // 최대 시도 횟수 초과
+    if (tryCount >= MAX_TRIES) {
+      clearInterval(timer);
+      console.error("❌ 폴링 타임아웃 (3분 초과)");
+      showErrorMessage("발화자 분석 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.");
+      
+      // 버튼 복구
+      const analysisBtn = document.getElementById('startSpeakerAnalysisBtn');
+      if (analysisBtn) {
+        analysisBtn.disabled = false;
+        analysisBtn.classList.remove('analyzing');
+        const span = analysisBtn.querySelector('span');
+        if (span) span.textContent = '발화자 구분 분석 시작';
+      }
+    }
+  }, 1500);
 }
 
 /* ===============================
@@ -766,9 +1067,21 @@ function displayTranscripts() {
   body.innerHTML = "";
 
   if (meetingData.transcripts.length === 0) {
-    body.innerHTML = `<div style="text-align: center; padding: 40px; color: #9ca3af;"><p>회의 녹취록이 없습니다.</p></div>`;
+    // 로딩 스피너 표시 (발화자 분석 대기 중)
+    body.innerHTML = `
+      <div class="loading-spinner" id="transcriptLoadingSpinner">
+        <div class="spinner"></div>
+        <p>발화자 분석 중...</p>
+      </div>
+    `;
     updateTranscriptStats();
     return;
+  }
+  
+  // ✅ forEach 루프 시작 전에 한 번만 스피너 제거
+  const loadingSpinner = document.getElementById('transcriptLoadingSpinner');
+  if (loadingSpinner) {
+    loadingSpinner.remove();
   }
 
   meetingData.transcripts.forEach((transcript, index) => {

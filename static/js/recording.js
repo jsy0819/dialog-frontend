@@ -560,7 +560,7 @@ function connectSTTWebSocket(language = "ko") {
       }
 
       // -------------------------
-      // 🔥 수정: 부분/최종 구분 없이 모두 즉시 표시
+      // 수정: 부분/최종 구분 없이 모두 즉시 표시
       // -------------------------
       if (data.type === "transcription") {
         // 빈 텍스트는 무시
@@ -584,7 +584,7 @@ function connectSTTWebSocket(language = "ko") {
         displaySentences();
         updateTranscriptCount();
 
-        // 🔥 키워드 감지 로그만 (Toast 제거)
+        // 키워드 감지 로그만 (Toast 제거)
         if (meetingData?.keywords && meetingData.keywords.length > 0) {
           meetingData.keywords.forEach(keyword => {
             const keywordStr = typeof keyword === 'string' ? keyword : (keyword.name || keyword.text || '');
@@ -840,7 +840,7 @@ function highlightKeywords(text, keywords) {
 =============================================================================== */
 
 function displaySentences() {
-  // 🔥 단순화: 전체 다시 렌더링
+  // 단순화: 전체 다시 렌더링
   transcriptContent.innerHTML = "";
 
   sentences.forEach((s, idx) => {
@@ -850,7 +850,7 @@ function displaySentences() {
 
     const timeStr = formatTime(s.recordingTime || 0);
 
-    // 🔥 키워드 하이라이트 적용
+    // 키워드 하이라이트 적용
     const highlightedText = meetingData?.keywords 
         ? highlightKeywords(s.text, meetingData.keywords)
         : escapeHtml(s.text);
@@ -859,7 +859,6 @@ function displaySentences() {
       <div class="transcript-meta">
         <span class="transcript-time">${timeStr}</span>
         ${s.confidence ? `<span class="confidence" style="margin-left:8px;color:#9ca3af;font-size:12px;">${Math.round(s.confidence * 100)}%</span>` : ''}
-        ${!s.isFinal ? '<span style="margin-left:6px;color:#3b82f6;font-size:0.85em;">인식중</span>' : ''}
       </div>
       <div class="transcript-text">${highlightedText}</div>
     `;
@@ -899,7 +898,7 @@ function showHighlightToast(keyword, sentence) {
 
   toast.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-weight:600;font-size:14px;">🔑 ${escapeHtml(keyword)}</span>
+      <span style="font-weight:600;font-size:14px;">${escapeHtml(keyword)}</span>
       <span style="opacity:0.8;font-size:12px;">${formatTime(timerSeconds)}</span>
     </div>
     <div style="font-size:13px;line-height:1.5;opacity:0.95;">
@@ -940,7 +939,7 @@ function formatTime(sec) {
   const h = String(Math.floor(sec / 3600)).padStart(2, "0");
   const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
   const s = String(sec % 60).padStart(2, "0");
-  // 🔥 1시간 미만이면 항상 mm:ss 형식으로 표시
+  // 1시간 미만이면 항상 mm:ss 형식으로 표시
   return h === "00" ? `${m}:${s}` : `${h}:${m}:${s}`;
 }
 
@@ -1127,7 +1126,7 @@ function initializeButtons() {
         if (ws?.readyState === WebSocket.OPEN) {
           console.log("📤 WebSocket에 stop 신호 전송 - 파일 업로드 대기 시작");
 
-          // 🔥 개선: 타임아웃을 20초로 연장
+          // 개선: 타임아웃을 20초로 연장
           const UPLOAD_TIMEOUT = 20000; // 10000 → 20000
 
           // Promise를 만들어서 audio_uploaded 메시지를 기다림
@@ -1145,7 +1144,7 @@ function initializeButtons() {
               }
             }, UPLOAD_TIMEOUT);
 
-            // 🔥 타임아웃 ID 저장 (성공 시 clearTimeout 하기 위해)
+            // 타임아웃 ID 저장 (성공 시 clearTimeout 하기 위해)
             window.uploadTimeoutId = timeoutId;
           });
 
@@ -1157,7 +1156,7 @@ function initializeButtons() {
             console.log(`⏳ 파일 업로드 완료 대기 중 (최대 ${UPLOAD_TIMEOUT / 1000}초)...`);
             const audioFileUrl = await audioUrlPromise;
 
-            // 🔥 성공 시 타임아웃 취소
+            // 성공 시 타임아웃 취소
             if (window.uploadTimeoutId) {
               clearTimeout(window.uploadTimeoutId);
               window.uploadTimeoutId = null;
@@ -1168,7 +1167,7 @@ function initializeButtons() {
           } catch (error) {
             console.error("❌ 파일 업로드 대기 중 에러:", error);
 
-            // 🔥 타임아웃 정리
+            // 타임아웃 정리
             if (window.uploadTimeoutId) {
               clearTimeout(window.uploadTimeoutId);
               window.uploadTimeoutId = null;

@@ -138,44 +138,98 @@ function showGuideMain() {
     document.getElementById('tipsGuideDetail').classList.remove('active');
 }
 
-// 성공 메시지 표시
 function showSuccessMessage(message) {
-    const existingMessage = document.querySelector('.success-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
+  const existing = document.querySelector('.success-message');
+  if (existing) existing.remove();
 
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'success-message';
-    messageDiv.style.cssText = `
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        background: #10b981;
-        color: white;
-        padding: 16px 24px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        animation: slideInRight 0.3s ease;
-    `;
+  const msg = document.createElement('div');
+  msg.className = 'success-message';
+  msg.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(142, 68, 173, 0.3);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    max-width: 400px;
+    font-weight: 500;
+    font-size: 14px;
+  `;
+  msg.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(msg);
 
-    messageDiv.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"/>
-        </svg>
-        <span>${message}</span>
-    `;
+  // 등장 애니메이션
+  requestAnimationFrame(() => {
+    msg.style.opacity = '1';
+    msg.style.transform = 'translateX(-50%) translateY(0)';
+  });
 
-    // 3. body 태그에 생성한 div를 추가하여 화면에 표시합니다.
-    document.body.appendChild(messageDiv);
+  setTimeout(() => {
+    msg.style.opacity = '0';
+    msg.style.transform = 'translateX(-50%) translateY(-20px)';
+    setTimeout(() => msg.remove(), 400);
+  }, 3000);
+}
 
-    // 4. 3초(3000ms) 후에 팝업이 사라지도록 설정합니다.
-    setTimeout(() => {
-        messageDiv.style.animation = 'slideOutRight 0.3s ease'; // 사라지는 애니메이션
-        setTimeout(() => messageDiv.remove(), 300); // 애니메이션 후 DOM에서 제거
-    }, 3000);
+function showErrorMessage(message) {
+  const existing = document.querySelector('.error-message');
+  if (existing) existing.remove();
+
+  const msg = document.createElement('div');
+  msg.className = 'error-message';
+  msg.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(239, 68, 68, 0.3);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    max-width: 400px;
+    font-weight: 500;
+    font-size: 14px;
+  `;
+  msg.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(msg);
+
+  // 등장 애니메이션
+  requestAnimationFrame(() => {
+    msg.style.opacity = '1';
+    msg.style.transform = 'translateX(-50%) translateY(0)';
+  });
+
+  setTimeout(() => {
+    msg.style.opacity = '0';
+    msg.style.transform = 'translateX(-50%) translateY(-20px)';
+    setTimeout(() => msg.remove(), 400);
+  }, 3000);
 }

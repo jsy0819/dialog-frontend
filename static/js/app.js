@@ -706,9 +706,184 @@ window.initializeChatbot = async function() {
     }
 };
 
+// // ============================================================
+// /* =========================================
+//    ✅ 전역 알림(Toast) 함수 추가
+//    어디서든 showAlert('메시지', 'error') 형태로 호출 가능
+// ========================================= */
+// window.showAlert = function(message, type = 'success') {
+//     // 1. 기존에 떠 있는 알림이 있다면 제거 (중복 방지)
+//     const existingToast = document.getElementById('global-toast');
+//     if (existingToast) existingToast.remove();
+
+//     // 2. 스타일 설정 (성공: 보라색/초록색, 에러: 빨간색)
+//     let bgColor, textColor, icon;
+//     if (type === 'error') {
+//         bgColor = '#FEE2E2'; // 연한 빨강
+//         textColor = '#DC2626'; // 진한 빨강
+//         icon = '⚠️';
+//     } else {
+//         bgColor = '#8E44AD'; // 메인 테마 보라색
+//         textColor = '#FFFFFF'; // 흰색 텍스트
+//         icon = '✅';
+//     }
+
+//     // 3. HTML 생성 (화면 상단 중앙에 뜸)
+//     const toastHtml = `
+//         <div id="global-toast" style="
+//             position: fixed;
+//             top: 20px;
+//             left: 50%;
+//             transform: translateX(-50%) translateY(-20px);
+//             background-color: ${bgColor};
+//             color: ${textColor};
+//             padding: 12px 24px;
+//             border-radius: 50px;
+//             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+//             z-index: 10000;
+//             font-weight: 600;
+//             font-size: 15px;
+//             display: flex;
+//             align-items: center;
+//             gap: 8px;
+//             opacity: 0;
+//             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+//         ">
+//             <span>${icon}</span>
+//             <span>${message}</span>
+//         </div>
+//     `;
+
+//     // 4. Body에 추가
+//     document.body.insertAdjacentHTML('beforeend', toastHtml);
+
+//     // 5. 등장 애니메이션
+//     requestAnimationFrame(() => {
+//         const toast = document.getElementById('global-toast');
+//         if (toast) {
+//             toast.style.opacity = '1';
+//             toast.style.transform = 'translateX(-50%) translateY(0)'; // 아래로 툭 떨어지는 효과
+//         }
+//     });
+
+//     // 6. 3초 뒤 자동 삭제
+//     setTimeout(() => {
+//         const toast = document.getElementById('global-toast');
+//         if (toast) {
+//             toast.style.opacity = '0';
+//             toast.style.transform = 'translateX(-50%) translateY(-20px)'; // 위로 사라짐
+//             setTimeout(() => toast.remove(), 300);
+//         }
+//     }, 3000);
+// };
+
+// /* =========================================
+//    ✅ 전역 컨펌(Confirm) 함수 추가
+//    const result = await showConfirm('삭제하시겠습니까?'); 형태로 사용
+// ========================================= */
+// window.showConfirm = function(message) {
+//     return new Promise((resolve) => {
+//         // 1. 기존에 떠 있는 컨펌 창이 있다면 제거 (중복 방지)
+//         const existingConfirm = document.getElementById('global-confirm');
+//         if (existingConfirm) existingConfirm.remove();
+
+//         // 2. HTML 생성 (배경 오버레이 + 모달 창)
+//         const confirmHtml = `
+//             <div id="global-confirm" style="
+//                 position: fixed;
+//                 top: 0;
+//                 left: 0;
+//                 width: 100%;
+//                 height: 100%;
+//                 background-color: rgba(0, 0, 0, 0.5);
+//                 display: flex;
+//                 justify-content: center;
+//                 align-items: center;
+//                 z-index: 20000;
+//                 opacity: 0;
+//                 transition: opacity 0.3s ease;
+//             ">
+//                 <div style="
+//                     background: white;
+//                     padding: 30px;
+//                     border-radius: 16px;
+//                     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+//                     text-align: center;
+//                     min-width: 320px;
+//                     transform: scale(0.9);
+//                     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+//                 ">
+//                     <div style="font-size: 40px; margin-bottom: 10px;"></div>
+//                     <p style="
+//                         margin: 0 0 24px 0; 
+//                         font-size: 17px; 
+//                         color: #333; 
+//                         font-weight: 600;
+//                         line-height: 1.5;
+//                     ">${message}</p>
+                    
+//                     <div style="display: flex; gap: 10px; justify-content: center;">
+//                         <button id="btn-cancel" style="
+//                             padding: 10px 24px;
+//                             border: none;
+//                             border-radius: 8px;
+//                             background-color: #E5E7EB;
+//                             color: #4B5563;
+//                             font-weight: 600;
+//                             cursor: pointer;
+//                             font-size: 14px;
+//                         ">취소</button>
+//                         <button id="btn-confirm" style="
+//                             padding: 10px 24px;
+//                             border: none;
+//                             border-radius: 8px;
+//                             background-color: #8E44AD; 
+//                             color: white;
+//                             font-weight: 600;
+//                             cursor: pointer;
+//                             font-size: 14px;
+//                         ">확인</button>
+//                     </div>
+//                 </div>
+//             </div>
+//         `;
+
+//         // 3. Body에 추가
+//         document.body.insertAdjacentHTML('beforeend', confirmHtml);
+
+//         // 4. 등장 애니메이션
+//         const modalOverlay = document.getElementById('global-confirm');
+//         const modalBox = modalOverlay.querySelector('div'); // 내부 박스
+
+//         requestAnimationFrame(() => {
+//             modalOverlay.style.opacity = '1';
+//             modalBox.style.transform = 'scale(1)';
+//         });
+
+//         // 5. 버튼 이벤트 핸들링 및 종료 처리 함수
+//         const cleanup = (result) => {
+//             modalOverlay.style.opacity = '0';
+//             modalBox.style.transform = 'scale(0.9)';
+            
+//             // 애니메이션 시간(0.3s) 후 DOM 제거 및 Promise 반환
+//             setTimeout(() => {
+//                 modalOverlay.remove();
+//                 resolve(result); // true(확인) 또는 false(취소) 반환
+//             }, 300);
+//         };
+
+//         // 6. 버튼 클릭 리스너 등록
+//         document.getElementById('btn-confirm').onclick = () => cleanup(true);
+//         document.getElementById('btn-cancel').onclick = () => cleanup(false);
+        
+//         // (옵션) 배경 클릭 시 취소 처리하려면 아래 주석 해제
+//         // modalOverlay.onclick = (e) => { if(e.target === modalOverlay) cleanup(false); };
+//     });
+// };
+
 // ============================================================
 /* =========================================
-   ✅ 전역 알림(Toast) 함수 추가
+   ✅ 전역 알림(Toast) 함수 - 개선 버전
    어디서든 showAlert('메시지', 'error') 형태로 호출 가능
 ========================================= */
 window.showAlert = function(message, type = 'success') {
@@ -716,40 +891,51 @@ window.showAlert = function(message, type = 'success') {
     const existingToast = document.getElementById('global-toast');
     if (existingToast) existingToast.remove();
 
-    // 2. 스타일 설정 (성공: 보라색/초록색, 에러: 빨간색)
-    let bgColor, textColor, icon;
+    // 2. 타입별 스타일 및 아이콘 설정
+    let bgGradient, boxShadow, svgIcon;
     if (type === 'error') {
-        bgColor = '#FEE2E2'; // 연한 빨강
-        textColor = '#DC2626'; // 진한 빨강
-        icon = '⚠️';
+        bgGradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        boxShadow = '0 2px 12px rgba(239, 68, 68, 0.3)';
+        svgIcon = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        `;
     } else {
-        bgColor = '#8E44AD'; // 메인 테마 보라색
-        textColor = '#FFFFFF'; // 흰색 텍스트
-        icon = '✅';
+        bgGradient = 'linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%)';
+        boxShadow = '0 2px 12px rgba(142, 68, 173, 0.3)';
+        svgIcon = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        `;
     }
 
-    // 3. HTML 생성 (화면 상단 중앙에 뜸)
+    // 3. HTML 생성 (화면 상단 중앙)
     const toastHtml = `
         <div id="global-toast" style="
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
-            background-color: ${bgColor};
-            color: ${textColor};
-            padding: 12px 24px;
-            border-radius: 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: ${bgGradient};
+            color: white;
+            padding: 10px 16px;
+            border-radius: 20px;
+            box-shadow: ${boxShadow};
             z-index: 10000;
-            font-weight: 600;
-            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            max-width: 400px;
+            font-weight: 500;
+            font-size: 14px;
         ">
-            <span>${icon}</span>
+            ${svgIcon}
             <span>${message}</span>
         </div>
     `;
@@ -762,7 +948,7 @@ window.showAlert = function(message, type = 'success') {
         const toast = document.getElementById('global-toast');
         if (toast) {
             toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)'; // 아래로 툭 떨어지는 효과
+            toast.style.transform = 'translateX(-50%) translateY(0)';
         }
     });
 
@@ -771,14 +957,14 @@ window.showAlert = function(message, type = 'success') {
         const toast = document.getElementById('global-toast');
         if (toast) {
             toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-50%) translateY(-20px)'; // 위로 사라짐
-            setTimeout(() => toast.remove(), 300);
+            toast.style.transform = 'translateX(-50%) translateY(-20px)';
+            setTimeout(() => toast.remove(), 400);
         }
     }, 3000);
 };
 
 /* =========================================
-   ✅ 전역 컨펌(Confirm) 함수 추가
+   ✅ 전역 컨펌(Confirm) 함수
    const result = await showConfirm('삭제하시겠습니까?'); 형태로 사용
 ========================================= */
 window.showConfirm = function(message) {
@@ -813,7 +999,7 @@ window.showConfirm = function(message) {
                     transform: scale(0.9);
                     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 ">
-                    <div style="font-size: 40px; margin-bottom: 10px;"></div>
+                    <div style="font-size: 40px; margin-bottom: 10px;">❓</div>
                     <p style="
                         margin: 0 0 24px 0; 
                         font-size: 17px; 
@@ -853,7 +1039,7 @@ window.showConfirm = function(message) {
 
         // 4. 등장 애니메이션
         const modalOverlay = document.getElementById('global-confirm');
-        const modalBox = modalOverlay.querySelector('div'); // 내부 박스
+        const modalBox = modalOverlay.querySelector('div');
 
         requestAnimationFrame(() => {
             modalOverlay.style.opacity = '1';
@@ -865,21 +1051,18 @@ window.showConfirm = function(message) {
             modalOverlay.style.opacity = '0';
             modalBox.style.transform = 'scale(0.9)';
             
-            // 애니메이션 시간(0.3s) 후 DOM 제거 및 Promise 반환
             setTimeout(() => {
                 modalOverlay.remove();
-                resolve(result); // true(확인) 또는 false(취소) 반환
+                resolve(result);
             }, 300);
         };
 
         // 6. 버튼 클릭 리스너 등록
         document.getElementById('btn-confirm').onclick = () => cleanup(true);
         document.getElementById('btn-cancel').onclick = () => cleanup(false);
-        
-        // (옵션) 배경 클릭 시 취소 처리하려면 아래 주석 해제
-        // modalOverlay.onclick = (e) => { if(e.target === modalOverlay) cleanup(false); };
     });
 };
+
 
 // 챗봇 이벤트 부착 함수
 function attachChatbotEvents() {

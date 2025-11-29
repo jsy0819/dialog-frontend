@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/jpeg" href="static/images/dialog-logo.png" />
-  <title>회의록 관리 - AI 회의록 서비스</title>
+  <title>회의록 관리 - DialoG</title>
   <link rel="stylesheet" href="static/css/style.css">
   <link rel="stylesheet" href="static/css/meetings.css">
   <link rel="stylesheet" href="static/css/chatbot.css">
@@ -87,87 +87,11 @@
             <div class="table-header-cell">우선순위</div>
             <div class="table-header-cell">키워드</div>
           </div>
-
-          <div class="table-row" onclick="goToMeetingDetail(1)" data-date="2025/09/29 14:00" data-duration="45" data-priority="high">
-            <div class="table-cell">
-              <span class="cell-primary">09/29</span>
-              <span class="cell-secondary">14:00</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-primary">마케팅 전략 회의</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">3명</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">45분</span>
-            </div>
-            <div class="table-cell">
-              <span class="priority-badge high">높음</span>
-            </div>
-            <div class="table-cell">
-              <div class="keyword-list">
-                <span class="keyword-tag">#마케팅</span>
-                <span class="keyword-tag">#전략</span>
-                <span class="keyword-tag">#Q4</span>
-                <span class="keyword-more">+2</span>
-              </div>
-            </div>
+          <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p>회의록 불러오는 중...</p>
           </div>
-
-          <div class="table-row" onclick="goToMeetingDetail(2)" data-date="2025/09/27 10:00" data-duration="80" data-priority="medium">
-            <div class="table-cell">
-              <span class="cell-primary">09/27</span>
-              <span class="cell-secondary">10:00</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-primary">개발팀 주간회의</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">4명</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">1시간 20분</span>
-            </div>
-            <div class="table-cell">
-              <span class="priority-badge medium">보통</span>
-            </div>
-            <div class="table-cell">
-              <div class="keyword-list">
-                <span class="keyword-tag">#개발</span>
-                <span class="keyword-tag">#스프린트</span>
-                <span class="keyword-tag">#버그수정</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="table-row" onclick="goToMeetingDetail(3)" data-date="2025/09/25 15:30" data-duration="120" data-priority="low">
-            <div class="table-cell">
-              <span class="cell-primary">09/25</span>
-              <span class="cell-secondary">15:30</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-primary">프로젝트 킥오프</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">6명</span>
-            </div>
-            <div class="table-cell">
-              <span class="cell-secondary">2시간</span>
-            </div>
-          <div class="table-cell">
-            <span class="priority-badge low">낮음</span>
-          </div>
-            <div class="table-cell">
-              <div class="keyword-list">
-                <span class="keyword-tag">#킥오프</span>
-                <span class="keyword-tag">#목표</span>
-                <span class="keyword-tag">#일정</span>
-                <span class="keyword-tag">#역할</span>
-                <span class="keyword-more">+3</span>
-              </div>
-            </div>
-          </div>
+        
         </div>
       </div>
 

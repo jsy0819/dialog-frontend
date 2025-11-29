@@ -104,7 +104,7 @@ async function loadMeetingDetail(meetingId) {
         // 1. 기본 정보(metaRes)는 필수이므로 실패 시 에러 처리
         if (!metaRes.ok) throw new Error("회의 정보를 찾을 수 없습니다.");
         const metaData = await metaRes.json();
-
+        document.title = `${metaData.title} - DialoG`;
         // 2. 대화 내용(transRes) 처리
         let transcripts = [];
         if (transRes.ok) {

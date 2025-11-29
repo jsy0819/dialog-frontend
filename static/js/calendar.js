@@ -1069,22 +1069,51 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ===============================================
 // 7. (UI Dev) 헬퍼 함수
 =================================================*/
-function showSuccessMessage(msg) {
-    const div = document.createElement("div");
-    div.textContent = msg;
-    Object.assign(div.style, {
-        position: "fixed",
-        top: "24px",
-        right: "24px",
-        background: "#10b981",
-        color: "#fff",
-        padding: "12px 20px",
-        borderRadius: "8px",
-        zIndex: "9999",
-        boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)"
-    });
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 2500);
+function showSuccessMessage(message) {
+  const existing = document.querySelector('.success-message');
+  if (existing) existing.remove();
+
+  const msg = document.createElement('div');
+  msg.className = 'success-message';
+  msg.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, #8E44AD 0%, #9b59b6 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(142, 68, 173, 0.3);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    max-width: 400px;
+    font-weight: 500;
+    font-size: 14px;
+  `;
+  msg.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span>${message}</span>
+  `;
+  document.body.appendChild(msg);
+
+  // 등장 애니메이션
+  requestAnimationFrame(() => {
+    msg.style.opacity = '1';
+    msg.style.transform = 'translateX(-50%) translateY(0)';
+  });
+
+  setTimeout(() => {
+    msg.style.opacity = '0';
+    msg.style.transform = 'translateX(-50%) translateY(-20px)';
+    setTimeout(() => msg.remove(), 400);
+  }, 3000);
 }
 
 // (UI Dev) JWT 파싱 헬퍼

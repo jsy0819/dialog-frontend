@@ -98,7 +98,13 @@ async function fetchMeetings() {
         showErrorState();
     }
 }
-
+// 로딩 상태 표시
+function showLoadingState() {
+    const loadingState = document.getElementById('loadingState');
+    if (loadingState) {
+        loadingState.style.display = 'block';
+    }
+}
 /* 통합 필터링 및 정렬 로직 */
 function applyFilters() {
     let result = [...allMeetings];
